@@ -1,0 +1,42 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-powershell:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+      NUGET_PACKAGES: ${{ github.workspace }}\.build\packages
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check public source
+        run: python tools/check_public_source.py
+      - name: Validate scripts and prepare guarded patches
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Source.ps1
+      - name: Build
+        run: .\build.ps1
+      - name: Verify source and binary distribution notices
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Distribution.ps1
+      - name: Test command analysis and rendering
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Highlighter.ps1
+      - name: Test temporary installation and removal
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Installation.ps1
+      - name: Test real ConPTY editing and predictions
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Interactive.ps1

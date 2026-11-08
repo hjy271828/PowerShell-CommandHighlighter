@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/PowerShell/PSReadLine",
+  "baseVersion": "2.4.5",
+  "tag": "v2.4.5",
+  "commit": "98d5610f7210924b79f553d982e10a9bd64dd52f",
+  "license": "BSD-2-Clause",
+  "moduleVersion": "2.4.5.1"
+}

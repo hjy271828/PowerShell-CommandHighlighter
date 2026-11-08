@@ -1,0 +1,57 @@
+{
+  "Date": "2026-11-08",
+  "PowerShell": "5.1.26100.9711",
+  "PSReadLine": "2.4.5.1",
+  "Scope": "Parser.ParseInput + Analyze, in Windows PowerShell via WSL interop; excludes terminal IO, prediction, and first process/module startup",
+  "Results": [
+    {
+      "Scenario": "cached",
+      "Samples": 160,
+      "MedianMs": 0.012,
+      "P95Ms": 0.021,
+      "MaxMs": 4.672
+    },
+    {
+      "Scenario": "cold-valid",
+      "Samples": 160,
+      "MedianMs": 0.033,
+      "P95Ms": 0.416,
+      "MaxMs": 0.593
+    },
+    {
+      "Scenario": "cold-missing",
+      "Samples": 160,
+      "MedianMs": 10.5,
+      "P95Ms": 20.483,
+      "MaxMs": 22.194
+    },
+    {
+      "Scenario": "typing-cold",
+      "Samples": 160,
+      "MedianMs": 17.273,
+      "P95Ms": 20.708,
+      "MaxMs": 23.504
+    },
+    {
+      "Scenario": "typing-cached",
+      "Samples": 160,
+      "MedianMs": 0.007,
+      "P95Ms": 0.01,
+      "MaxMs": 24.858
+    },
+    {
+      "Scenario": "long-arguments",
+      "Samples": 160,
+      "MedianMs": 0.937,
+      "P95Ms": 1.725,
+      "MaxMs": 4.655
+    },
+    {
+      "Scenario": "many-commands",
+      "Samples": 160,
+      "MedianMs": 0.126,
+      "P95Ms": 0.215,
+      "MaxMs": 1.071
+    }
+  ]
+}

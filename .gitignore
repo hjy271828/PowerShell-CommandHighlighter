@@ -1,0 +1,39 @@
+# Generated build and package output
+.build/
+artifacts/
+test-results/
+**/bin/
+**/obj/
+**/__pycache__/
+*.py[cod]
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Local environment records and terminal output
+tests/environment-*.json
+tests/*transcript*.txt
+tests/benchmark-results.json
+*.log
+*.commandhighlighter-backup-*
+*.commandhighlighter-uninstall-backup-*
+
+# Editor, operating-system, and credential files
+.vscode/
+.idea/
+.vs/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+.env
+.env.*
+*.pfx
+*.p12
+*.pem
+*.key

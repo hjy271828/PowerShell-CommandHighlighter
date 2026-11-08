@@ -1,0 +1,59 @@
+--- a/PSReadLine/Render.cs
++++ b/PSReadLine/Render.cs
+@@ -445,6 +445,7 @@
+         private int GenerateRender(string defaultColor)
+         {
+             var text = ParseInput();
++            _commandHighlighter.Analyze(_ast, _engineIntrinsics);
+             _prediction.QueryForSuggestion(text);
+ 
+             string color = defaultColor;
+@@ -1121,6 +1122,12 @@
+ 
+         private string GetTokenColor(Token token)
+         {
++            var commandColor = _commandHighlighter.GetColor(token);
++            return commandColor ?? GetDefaultTokenColor(token);
++        }
++
++        private string GetDefaultTokenColor(Token token)
++        {
+             if ((token.TokenFlags & TokenFlags.CommandName) != 0)
+             {
+                 return _options._commandColor;
+--- a/PSReadLine/ReadLine.cs
++++ b/PSReadLine/ReadLine.cs
+@@ -753,6 +753,7 @@
+         private void Initialize(Runspace runspace, EngineIntrinsics engineIntrinsics)
+         {
+             _engineIntrinsics = engineIntrinsics;
++            _commandHighlighter.Reset();
+             _runspace = runspace;
+ 
+             // The directory separator to be used for tab completion may change depending on
+--- a/PSReadLine/PSReadLine.csproj
++++ b/PSReadLine/PSReadLine.csproj
+@@ -5,9 +5,9 @@
+     <RootNamespace>Microsoft.PowerShell.PSReadLine</RootNamespace>
+     <AssemblyName>Microsoft.PowerShell.PSReadLine</AssemblyName>
+     <NoWarn>$(NoWarn);CA1416</NoWarn>
+-    <AssemblyVersion>2.4.5.0</AssemblyVersion>
+-    <FileVersion>2.4.5</FileVersion>
+-    <InformationalVersion>2.4.5</InformationalVersion>
++    <AssemblyVersion>2.4.5.1</AssemblyVersion>
++    <FileVersion>2.4.5.1</FileVersion>
++    <InformationalVersion>2.4.5-commandhighlighter.1</InformationalVersion>
+     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+     <TargetFramework>netstandard2.0</TargetFramework>
+     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+--- a/PSReadLine/PSReadLine.psd1
++++ b/PSReadLine/PSReadLine.psd1
+@@ -1,7 +1,7 @@
+ @{
+ RootModule = 'PSReadLine.psm1'
+ NestedModules = @("Microsoft.PowerShell.PSReadLine.dll")
+-ModuleVersion = '2.4.5'
++ModuleVersion = '2.4.5.1'
+ GUID = '5714753b-2afd-4492-a5fd-01d9e2cff8b5'
+ Author = 'Microsoft Corporation'
+ CompanyName = 'Microsoft Corporation'
