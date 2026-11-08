@@ -16,6 +16,12 @@ binary payload, including full licenses and exact upstream provenance. See
 
 The default installation test uses a temporary directory. Never point an automated uninstall test at another person's module directory or replace existing system modules for a test.
 
+For release changes, run `package.ps1` after building, then run
+`tests/Test-Release.ps1` in a clean Windows PowerShell process. This validates
+the extracted ZIP's checksum, licenses, installation, real editing, and removal.
+Keep `release.json` and the matching file in `docs/releases/` consistent. Do not
+attach binary output from an unreviewed commit to a release.
+
 ## Source and licensing
 
 `vendor/PSReadLine/` contains an unmodified build-source subset pinned in `vendor/UPSTREAM.md`. Make project changes in `src/` and the guarded build patches. If a rebase is required, review the upstream renderer and discovery behavior, update provenance and the review patch, and rerun the relevant tests.

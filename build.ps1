@@ -35,10 +35,10 @@ Replace-Once "$stage/PSReadLine/PSReadLine.csproj" '<InformationalVersion>2.4.5<
 Replace-Once "$stage/PSReadLine/PSReadLine.psd1" "ModuleVersion = '2.4.5'" "ModuleVersion = '2.4.5.1'"
 if ($PrepareOnly) { Write-Host "Prepared guarded source patches: $stage"; return }
 foreach ($framework in @('netstandard2.0', 'net6.0')) {
-    & $Dotnet publish "$stage/Polyfill/Polyfill.csproj" -c Release -f $framework --nologo -p:UseSharedCompilation=false -m:1
+    & $Dotnet publish "$stage/Polyfill/Polyfill.csproj" -c Release -f $framework --nologo -p:DebugType=None -p:DebugSymbols=false -p:UseSharedCompilation=false -m:1
     if ($LASTEXITCODE) { throw "Polyfill build failed: $LASTEXITCODE" }
 }
-& $Dotnet publish "$stage/PSReadLine/PSReadLine.csproj" -c Release --nologo -p:UseSharedCompilation=false -m:1
+& $Dotnet publish "$stage/PSReadLine/PSReadLine.csproj" -c Release --nologo -p:DebugType=None -p:DebugSymbols=false -p:UseSharedCompilation=false -m:1
 if ($LASTEXITCODE) { throw "PSReadLine build failed: $LASTEXITCODE" }
 if (Test-Path $output) { Remove-Item $output -Recurse -Force }
 New-Item "$output/netstd", "$output/net6plus" -ItemType Directory -Force | Out-Null

@@ -13,5 +13,18 @@ foreach ($assembly in [AppDomain]::CurrentDomain.GetAssemblies()) {
     }
 }
 if (!$PSCmdlet.ShouldProcess($InstallRoot, 'Delete only the owned PSReadLine 2.4.5.1 directory')) { return }
-Remove-Item -LiteralPath $InstallRoot -Recurse -Force
+try {
+    foreach ($file in Get-ChildItem -LiteralPath $InstallRoot -Recurse -File -Filter *.dll) {
+        $probe = [IO.File]::Open($file.FullName, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+        $probe.Dispose()
+    }
+} catch {
+    throw 'Module DLLs are in use or not writable. Close shells using this build and retry from a clean process. No module files were removed.'
+}
+# Keep the ownership record until other files are gone, so an interrupted or
+# failed removal can be retried instead of becoming an unowned partial folder.
+Get-ChildItem -LiteralPath $InstallRoot -Force | Where-Object FullName -ne $statePath |
+    Remove-Item -Recurse -Force
+Remove-Item -LiteralPath $statePath -Force
+Remove-Item -LiteralPath $InstallRoot -Force
 Write-Host 'Uninstalled. Open a NEW PowerShell process to use the original PSReadLine. No profile restoration is needed.'

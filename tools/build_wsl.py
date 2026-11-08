@@ -40,8 +40,8 @@ env = dict(os.environ, DOTNET_CLI_HOME=str(root / '.build/dotnet-home'),
            NUGET_PACKAGES=str(root / '.build/packages'), DOTNET_NOLOGO='1',
            DOTNET_CLI_TELEMETRY_OPTOUT='1')
 for framework in ('netstandard2.0', 'net6.0'):
-    subprocess.run([dotnet, 'publish', str(stage / 'Polyfill/Polyfill.csproj'), '-c', 'Release', '-f', framework, '-p:UseSharedCompilation=false', '-m:1'], check=True, env=env)
-subprocess.run([dotnet, 'publish', str(stage / 'PSReadLine/PSReadLine.csproj'), '-c', 'Release', '-p:UseSharedCompilation=false', '-m:1'], check=True, env=env)
+    subprocess.run([dotnet, 'publish', str(stage / 'Polyfill/Polyfill.csproj'), '-c', 'Release', '-f', framework, '-p:DebugType=None', '-p:DebugSymbols=false', '-p:UseSharedCompilation=false', '-m:1'], check=True, env=env)
+subprocess.run([dotnet, 'publish', str(stage / 'PSReadLine/PSReadLine.csproj'), '-c', 'Release', '-p:DebugType=None', '-p:DebugSymbols=false', '-p:UseSharedCompilation=false', '-m:1'], check=True, env=env)
 output = root / 'artifacts/PSReadLine/2.4.5.1'
 if output.exists():
     shutil.rmtree(output)

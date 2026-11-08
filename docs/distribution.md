@@ -50,6 +50,13 @@ DLL. `install.ps1` copies this complete directory to the user module location.
 The installed module's additional ownership record is local installation
 metadata and is not needed in a release archive.
 
+The user-facing release ZIP wraps this complete module under
+`artifacts/PSReadLine/2.4.5.1/` and also includes `install.ps1`, `uninstall.ps1`,
+`demo.ps1`, `release.json`, a standalone README, release notes, the changelog,
+and top-level project/third-party notices. Run `package.ps1` after building.
+It copies an explicit inventory, rather than every file found in artifacts.
+The versioned ZIP and its `SHA256SUMS.txt` are the files attached to a release.
+
 `THIRD-PARTY-NOTICES.md` in binary output is self-contained: its component
 copyright, license identity, and license-file locations do not depend on a
 link back to a source checkout.
@@ -70,8 +77,15 @@ powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Distributio
 
 The full check verifies that license/provenance files exist, match their source
 copies, and accompany the expected runtime payload. CI runs it after building.
+Release builds disable compiler debug symbols, and this check rejects common
+local account paths embedded in project-built DLLs. Upstream source comments
+and full license notices remain intact.
 It checks distribution contents; it does not establish byte-identical compiler
 output across machines or claim to replace a broader legal review.
+
+`tests/Test-Release.ps1` additionally checks the ZIP checksum and exercises
+installation, module loading, real editing, and removal from the extracted
+package. See [releasing.md](releasing.md) for the complete release procedure.
 
 The primary upstream terms are the [pinned PSReadLine license](https://github.com/PowerShell/PSReadLine/blob/98d5610f7210924b79f553d982e10a9bd64dd52f/License.txt)
 and the Pager license retained under `third-party/`.

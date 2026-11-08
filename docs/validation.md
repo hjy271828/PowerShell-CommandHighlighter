@@ -9,6 +9,7 @@ Personal account names, machine paths, environment snapshots, profile hashes, an
 | Check | Recorded result |
 | --- | --- |
 | Full Linux build | Main module and both upstream polyfills compiled and published. |
+| Full Windows release build | Portable .NET SDK 8.0.427 compiled and published the module and both polyfills through build.ps1. |
 | Windows build preparation | `build.ps1 -PrepareOnly` succeeded; four patched files matched the WSL build preparation byte-for-byte. |
 | Semantic and render checks | 131 assertions passed, including the actual patched `GenerateRender`/`GetTokenColor` path. |
 | Temporary installation | Install, uninstall, idempotence, `-WhatIf`, ownership protection, and an unchanged profile hash passed. |
@@ -16,10 +17,21 @@ Personal account names, machine paths, environment snapshots, profile hashes, an
 | Existing profile | The same 16 checks passed with an existing Oh My Posh/PSReadLine profile. |
 | Installed startup | The same 16 checks passed with default module discovery, without a temporary search-path override or explicit patch import. |
 | Original setup | Existing profile, theme, upstream DLL, and execution policy were unchanged during installation validation. |
+| Final release ZIP | Checksum, exact file inventory, notices, extraction, temporary installation, fresh-process loading, 16 installed-build ConPTY checks, and removal passed. |
+| Release failure cases | A wrong checksum was rejected; extra build files were excluded; different-build reuse and removal of a locked DLL were rejected without overwriting the installation. |
+| Binary path privacy | Project-built DLLs passed local account path checks after compiler debug symbols were disabled. |
 
-A full Windows SDK build was not run during the recorded development session. The CI workflow is configured to perform it after publication; it has not yet run on a hosted runner. The bundled subset does not include or run the upstream xUnit test suite.
+The initial development session used cross-compilation and Windows build
+preparation. Release preparation subsequently completed a full native Windows
+SDK build and reran the relevant checks successfully. The repository is now
+public, and its [initial hosted CI run](https://github.com/hjy271828/PowerShell-CommandHighlighter/actions/runs/42489661573)
+completed successfully for commit `34e6c38b0a1b54ba429a8f0eb2093ab66c3f2ccf`.
+That run predates the release ZIP workflow, binary path checks, and installation
+hardening prepared afterward. Verify a passing hosted run for the new release
+commit before publishing its assets. The bundled subset does not include or
+run the upstream xUnit test suite.
 
-After preparing the public source tree, the Linux build, 131 semantic/render checks, 16 clean-profile ConPTY checks, temporary installation/removal checks, and Windows PowerShell script parsing were run again successfully. Fresh `-File` launches also exercised repository-relative artifact discovery. Public-source checks and CI YAML parsing passed locally; hosted CI execution remains unverified.
+After preparing the public source tree, the Linux build, 131 semantic/render checks, 16 clean-profile ConPTY checks, temporary installation/removal checks, and Windows PowerShell script parsing were run again successfully. Fresh `-File` launches also exercised repository-relative artifact discovery. Public-source checks and CI YAML parsing passed locally. The initial commit's hosted run was subsequently verified; the later release-preparation changes require their own passing hosted run.
 
 The distribution review rebuilt the module and checked both a source snapshot
 archive and the compiled payload in Windows PowerShell 5.1. Full licenses,
@@ -27,6 +39,13 @@ third-party notices, and exact upstream provenance were present and matched
 their source copies. A negative check that removed the binary's upstream
 license failed as expected. The new distribution check is included in CI;
 see [distribution.md](distribution.md) for the file inventory and commands.
+
+Release validation used the ZIP itself, with a temporary module search path
+scoped to the test process tree. It left the normal user module installation
+unchanged. An explicit inventory check confirmed that extra fixture files in
+build output and the source third-party directory did not enter the package.
+The source parsing check covered 14 project scripts. See
+[releasing.md](releasing.md) for the local package and CI workflow commands.
 
 ## Semantic coverage
 

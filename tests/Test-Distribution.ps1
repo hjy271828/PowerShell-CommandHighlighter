@@ -67,4 +67,17 @@ foreach ($relative in @(
 }
 $manifest = Import-PowerShellDataFile -LiteralPath (Join-Path $module 'PSReadLine.psd1')
 if ([string]$manifest.ModuleVersion -ne $provenance.moduleVersion) { throw 'Published module version does not match its provenance.' }
-Write-Host 'PASS: source and binary distribution licenses, notices, payload, and pinned provenance.'
+foreach ($relative in @(
+    'Microsoft.PowerShell.PSReadLine.dll',
+    'netstd/Microsoft.PowerShell.PSReadLine.Polyfiller.dll',
+    'net6plus/Microsoft.PowerShell.PSReadLine.Polyfiller.dll'
+)) {
+    $bytes = [IO.File]::ReadAllBytes((Join-Path $module $relative))
+    foreach ($encoding in @([Text.Encoding]::UTF8, [Text.Encoding]::Unicode)) {
+        $text = $encoding.GetString($bytes)
+        if ($text -match '(?i)(?:[a-z]:\\+Users\\+[^\\\s]+|/(?:home|Users)/[^/\s]+)') {
+            throw "Compiled project binary contains a local account path: $relative"
+        }
+    }
+}
+Write-Host 'PASS: source and binary distribution licenses, notices, payload, pinned provenance, and project binary path checks.'

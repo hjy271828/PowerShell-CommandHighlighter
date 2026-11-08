@@ -73,9 +73,22 @@ Only if a minimal build environment lacks ICU, set `DOTNET_SYSTEM_GLOBALIZATION_
 
 The build copies the pinned upstream source to `.build/upstream`, applies guarded patches, and publishes to `artifacts/PSReadLine/2.4.5.1/`. Patch preparation fails if an expected upstream anchor changes. Building does not install anything.
 
+## Prebuilt preview packages
+
+For a tagged preview, download the named binary ZIP and `SHA256SUMS.txt` from
+the repository's Releases page. GitHub's automatic source archives contain
+source code and still require building. The binary ZIP includes installation,
+removal, a demo, and all component notices; using it does not need an SDK.
+If no binary release is available yet, use the source build instructions above.
+
+Verify the ZIP with `Get-FileHash -Algorithm SHA256`, compare the result with
+`SHA256SUMS.txt`, and extract it to a local directory. Follow the README inside
+that ZIP, including the reviewed downloaded-file unblocking instructions if
+Windows blocks unsigned downloaded scripts. Execution policy is not changed.
+
 ## Install
 
-After building:
+After building from source or extracting a complete binary release:
 
 ```powershell
 .\install.ps1 -WhatIf
@@ -103,6 +116,11 @@ Interactive PowerShell imports PSReadLine before running profiles. Importing a d
 
 The installer refuses to overwrite an unrelated directory and stops when an equal or newer unowned PSReadLine version is available. If your execution policy rejects scripts from a network share, use a reviewed local checkout; these scripts do not change execution policy.
 
+An existing owned installation is reused only when its recorded files and the
+desired build match. A different build with the same module version is rejected
+instead of silently keeping stale files. Use a clean process to uninstall the
+old fork before reinstalling; the original upstream module files remain intact.
+
 ## Disable and uninstall
 
 Disable existence coloring in the current session:
@@ -118,13 +136,19 @@ Re-enable it and clear cached results:
 [Microsoft.PowerShell.PSConsoleReadLine]::ClearCommandHighlighterCache()
 ```
 
-The next normal edit or redraw uses the updated setting. To uninstall, run a clean process from the repository root so the module DLL is not locked by the uninstaller:
+The next normal edit or redraw uses the updated setting. Close other shells
+using this build, then uninstall from a clean process or Command Prompt in the
+repository root:
 
 ```powershell
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\uninstall.ps1
 ```
 
 Only the version directory carrying this project's ownership record is removed. A new shell can select the original PSReadLine again. No profile restoration is required. Pass the same `-InstallRoot` to installation and uninstallation if using a custom destination; custom destinations must already be discoverable at shell startup.
+
+If DLLs are still in use, the uninstaller stops before deleting module files.
+Its ownership record is kept until the other files have been removed, allowing
+an interrupted removal to be retried.
 
 ## Tests and performance
 
@@ -151,7 +175,37 @@ New-Item test-results -ItemType Directory -Force | Out-Null
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Measure-Highlighter.ps1 -OutputPath .\test-results\benchmark.json
 ```
 
-A [Windows CI workflow](.github/workflows/ci.yml) builds and runs the automated checks. Its hosted execution still needs to be confirmed after publishing; no passing CI status is implied by this README.
+A [Windows CI workflow](.github/workflows/ci.yml) builds, tests, packages a ZIP,
+and validates installation and editing from that extracted ZIP. Successful runs
+upload a `release-assets` artifact containing the ZIP, checksums, and release
+notes. Check the workflow for the exact commit being released; local development
+results do not imply a passing hosted run. CI does not publish a GitHub Release
+or change repository visibility.
+
+## Prepare a release
+
+`release.json` records the project version, patched module version, and preview
+status. After building:
+
+```powershell
+.\package.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Release.ps1
+```
+
+The first preview generates these files under `artifacts/releases/`:
+
+```text
+PowerShell-CommandHighlighter-v0.1.0-windows-powershell5.1.zip
+SHA256SUMS.txt
+RELEASE-NOTES.md
+```
+
+The package uses an explicit file inventory and excludes local installation
+records, PDBs, and extra files in the build directory. See the
+[release procedure](docs/releasing.md) and [v0.1.0 notes](docs/releases/v0.1.0.md)
+before creating the tag and draft release. Generated archives stay out of Git.
+Release builds disable compiler debug symbols; distribution checks also reject
+common local account paths embedded in project-built DLLs.
 
 ## Architecture and maintenance
 
