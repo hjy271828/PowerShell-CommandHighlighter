@@ -13,7 +13,7 @@ Colors update while editing, before pressing Enter. Aliases, functions, discover
 
 **Implementation:** this project builds a small **C# patch to PSReadLine 2.4.5**. It is a separately installed PSReadLine fork, not a plugin using a public token-coloring API. It is an independent project and is not an official Microsoft release.
 
-Project version: **0.1.1 (experimental)**. The patched module uses **2.4.5.2** to distinguish it from its upstream base.
+Current release: **[v0.1.1 (pre-release)](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1)**, published on **2026-11-09**. The patched module uses **2.4.5.2** to distinguish it from its upstream base.
 
 ## Upstream provenance
 
@@ -76,11 +76,11 @@ The build copies the pinned upstream source to `.build/upstream`, applies guarde
 
 ## Prebuilt preview packages
 
-For a tagged preview, download the named binary ZIP and `SHA256SUMS.txt` from
-the repository's Releases page. GitHub's automatic source archives contain
+Download `PowerShell-CommandHighlighter-v0.1.1-windows-powershell5.1.zip` and
+`SHA256SUMS.txt` from the [v0.1.1 release](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1).
+GitHub's automatic source archives contain
 source code and still require building. The binary ZIP includes installation,
 removal, a demo, and all component notices; using it does not need an SDK.
-If no binary release is available yet, use the source build instructions above.
 
 Verify the ZIP with `Get-FileHash -Algorithm SHA256`, compare the result with
 `SHA256SUMS.txt`, and extract it to a local directory. Follow the README inside

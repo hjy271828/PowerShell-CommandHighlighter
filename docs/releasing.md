@@ -1,8 +1,12 @@
 # Release procedure
 
-The current target is **v0.1.1**, an experimental preview. The project version is
-0.1.1, while the patched PSReadLine module version is 2.4.5.2. They describe
-different components and should not be confused with upstream v2.4.5.
+The latest published preview is **[v0.1.1](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1)**,
+released on **2026-11-09**. The project version is 0.1.1, while the patched
+PSReadLine module version is 2.4.5.2. They describe different components and
+should not be confused with upstream v2.4.5.
+
+Use this procedure for future releases. Examples below use v0.1.1; replace the
+version and release summary with the next reviewed release when preparing it.
 
 ## Prepare the source commit
 
@@ -56,9 +60,10 @@ how to unblock reviewed downloaded files without changing execution policy.
 ## Create the GitHub draft
 
 1. Select the source commit whose workflow and artifacts passed. Create the
-   matching `v0.1.1` tag on that commit, not on an older commit that lacks release
+   matching `v<version>` tag on that commit, not on an older commit that lacks release
    scripts or on an unreviewed later commit.
-2. Draft a release titled `v0.1.1 - Experimental preview`.
+2. Draft a release titled `v<version> - <summary>`, such as the published
+   `v0.1.1 - Hardening preview`.
 3. Paste the prepared `RELEASE-NOTES.md` and attach the named ZIP and
    `SHA256SUMS.txt` from that same build.
 4. Mark **This is a pre-release**, as recorded in `release.json`.
@@ -73,3 +78,16 @@ does not become publicly downloadable simply because it was published. Choose
 repository visibility separately; this project's scripts never change it.
 See [GitHub's release access documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
 and [draft/publish instructions](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+
+## After publishing
+
+1. Verify the published tag, release status, named ZIP and checksums against the
+   successful CI run for the tagged commit.
+2. Replace the released version's `Unreleased` changelog heading with its actual
+   publication date. Update the README download link and validation record.
+3. Submit those documentation changes as a normal follow-up commit. Keep the
+   published tag and release assets fixed so their source and checksums remain
+   reproducible; the published archives retain their original documentation.
+4. Keep `release.json` aligned with the published project/module versions and
+   pre-release status until preparing a new release. Start a new changelog
+   section when there are actual changes to record for the next version.

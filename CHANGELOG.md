@@ -1,9 +1,8 @@
 # Changelog
 
-## 0.1.1 - Unreleased
+## 0.1.1 - 2026-11-09
 
 - Group build/package/internal scripts under tools and the source demo under examples.
-
 - Preflight a shared context patch plan and all metadata before staging changes.
 - Preserve complete build artifacts on compiler and payload failure.
 - Use neutral highlighting for recognized pending command-environment changes.
