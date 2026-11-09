@@ -8,12 +8,21 @@ and native .NET SDK 8.0.427. The baseline was rebuilt from commit
 render assertions, installation regression and 16 ConPTY checks before changes.
 The new fork uses module version 2.4.5.2; upstream remains pinned to v2.4.5.
 
+The [v0.1.1 pre-release](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1)
+was published on **2026-11-09**, tagging merge commit
+`e7e7ccafa2dc96faf838abae039e9aa5560a950b`.
+The [hosted Build and test run](https://github.com/hjy271828/PowerShell-CommandHighlighter/actions/runs/42553575211)
+passed for that exact commit on the `windows-2022` runner, including build,
+patch checks, command analysis, installation, ConPTY editing, packaging and
+extracted-ZIP validation. The timing measurements below remain local results;
+the experimental upstream workflow is separate from this release CI run.
+
 The v0.1.1 review covers:
 
 | Check | Result |
 | --- | --- |
 | Existing semantic/render tests | All 131 assertions retained and passed. |
-| Dynamic/discovery/cache tests | All 97 assertions passed, including pending definitions, scopes, module discovery/removal, autoload settings, explicit scripts and cache invalidation passed. |
+| Dynamic/discovery/cache tests | All 97 assertions passed, including pending definitions, scopes, module discovery/removal, autoload settings, explicit scripts and cache invalidation. |
 | Context patch failures | 16 native PowerShell assertions passed; all four patched files matched Python preparation byte for byte. |
 | Offline helper tests | Eight Python unittest cases passed, including late mismatches, repeated injection, metadata drift, throttling, retry bounds and unsafe archives. |
 | Publication failures | Compiler failure and missing output preserved the complete preceding artifacts; experimental package/install attempts were rejected. |
@@ -21,7 +30,7 @@ The v0.1.1 review covers:
 | Preservation | Existing profile/module hashes and execution policies were unchanged. Tests used temporary module roots. |
 | Real interactive editor | 21 ConPTY assertions passed, retaining original editing/prediction coverage and adding pending alias/function/PATH cases. |
 | Extracted ZIP | Checksum, exact 25-file inventory, licenses, fresh loading, 21 installed-module ConPTY checks and uninstall passed. |
-| Workflow validation | Both workflows passed actionlint 1.7.12. No hosted run for this branch is implied by local results. |
+| Workflow validation | Both workflows passed actionlint 1.7.12; the release commit's hosted Build and test run also passed, as linked above. |
 
 Only sanitized timing/version data is committed. Private paths, profile data,
 raw terminal output and local installation state are excluded. Windows GUI,
@@ -83,7 +92,7 @@ build project no longer exists. Diagnostics reported the failing phase; master
 is not supported and was not released. The missing-input diagnostic was then
 made explicit in the build helper. The supported vendor tree was unchanged.
 
-The weekly workflow starts after merging to the default branch. A probe summary
+The weekly workflow is available on the default branch after the merge. A probe summary
 must be read by its JSON status, not inferred from a green experimental job.
 Offline/rate-limit inputs are unavailable; experimental failures never create
 Issues or publish DLLs. See [the workflow](../.github/workflows/upstream-compatibility.yml).
