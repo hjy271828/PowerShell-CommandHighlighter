@@ -21,7 +21,7 @@ These conclusions describe the pinned source, not every future PSReadLine versio
 2. `GetTokenColor` consults a command span's override color, then falls back to the original implementation.
 3. `Initialize` resets discovery state for each new ReadLine call.
 
-The build also marks the assembly and module as **2.4.5.1**, a project-local fork version, not an official upstream release. The guarded substitutions are visible in [the patch](PSReadLine-v2.4.5.patch); the additional implementation is [a single C# file](../src/CommandExistenceHighlighter.cs).
+The build also marks the assembly and module as **2.4.5.2**, a project-local fork version, not an official upstream release. The guarded substitutions are visible in [the patch](PSReadLine-v2.4.5.patch); the additional implementation is [a single C# file](../src/CommandExistenceHighlighter.cs).
 
 Retaining the original editor avoids intercepting each editing key or drawing a separate terminal overlay. Accepted prediction text becomes ordinary input and is analyzed on the normal rendering path. Unaccepted prediction text does not become part of the analyzed AST.
 
@@ -59,3 +59,7 @@ A related request already exists: [PSReadLine issue #3439](https://github.com/Po
 - [PSReadLine development notes](https://github.com/PowerShell/PSReadLine#developing-and-contributing): avoiding automatic default-module loading when developing a local build.
 
 PSColor focuses on output coloring and posh-git on Git prompt/completion features, rather than the editor behavior implemented here. Their [project](https://github.com/Davlind/PSColor) [descriptions](https://github.com/dahlbyk/posh-git) were considered during the initial investigation; this is not an exhaustive survey of every third-party project.
+
+The v0.1.1 [hardening review](hardening.md) documents the shared preflight patch
+plan, targeted neutral states for pending environment mutations, autoload
+preference invalidation and isolated weekly upstream experiments.

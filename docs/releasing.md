@@ -1,7 +1,7 @@
 # Release procedure
 
-The first target is **v0.1.0**, an experimental preview. The project version is
-0.1.0, while the patched PSReadLine module version is 2.4.5.1. They describe
+The current target is **v0.1.1**, an experimental preview. The project version is
+0.1.1, while the patched PSReadLine module version is 2.4.5.2. They describe
 different components and should not be confused with upstream v2.4.5.
 
 ## Prepare the source commit
@@ -22,8 +22,8 @@ and uploads an Actions artifact using read-only repository permissions.
 On Windows PowerShell 5.1 with .NET SDK 8.x:
 
 ```powershell
-.\build.ps1
-.\package.ps1
+.\tools\build.ps1
+.\tools\package.ps1
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Release.ps1
 ```
 
@@ -38,14 +38,14 @@ real ConPTY editing checks against that installation, and removes it. It checks
 that the existing user profile was preserved. It does not install into the
 normal user module directory.
 
-`package.ps1` includes only the declared payload and user scripts. Runtime DLLs,
+`tools/package.ps1` includes only the declared payload and user scripts. Runtime DLLs,
 the original licenses, `UPSTREAM.json`, release metadata, and standalone usage
 instructions travel together. Generated files are ignored by Git.
 
 For a local integrity check:
 
 ```powershell
-Get-FileHash .\artifacts\releases\PowerShell-CommandHighlighter-v0.1.0-windows-powershell5.1.zip -Algorithm SHA256
+Get-FileHash .\artifacts\releases\PowerShell-CommandHighlighter-v0.1.1-windows-powershell5.1.zip -Algorithm SHA256
 Get-Content .\artifacts\releases\SHA256SUMS.txt
 ```
 
@@ -56,9 +56,9 @@ how to unblock reviewed downloaded files without changing execution policy.
 ## Create the GitHub draft
 
 1. Select the source commit whose workflow and artifacts passed. Create the
-   matching `v0.1.0` tag on that commit, not on an older commit that lacks release
+   matching `v0.1.1` tag on that commit, not on an older commit that lacks release
    scripts or on an unreviewed later commit.
-2. Draft a release titled `v0.1.0 - Experimental preview`.
+2. Draft a release titled `v0.1.1 - Experimental preview`.
 3. Paste the prepared `RELEASE-NOTES.md` and attach the named ZIP and
    `SHA256SUMS.txt` from that same build.
 4. Mark **This is a pre-release**, as recorded in `release.json`.

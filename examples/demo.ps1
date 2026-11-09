@@ -2,8 +2,10 @@
 [CmdletBinding()]
 param([switch]$NoUserProfile)
 $ErrorActionPreference = 'Stop'
-$artifacts = Join-Path $PSScriptRoot 'artifacts'
-if (!(Test-Path "$artifacts/PSReadLine/2.4.5.1/PSReadLine.psd1")) { throw 'Run build.ps1 first.' }
+# Source checkout: examples/demo.ps1. Binary release: demo.ps1 at package root.
+$root = if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'release.json')) { $PSScriptRoot } else { Split-Path $PSScriptRoot -Parent }
+$artifacts = Join-Path $root 'artifacts'
+if (!(Test-Path -LiteralPath "$artifacts/PSReadLine/2.4.5.2/PSReadLine.psd1")) { throw 'Build with tools/build.ps1 or extract the complete binary package first.' }
 $savedModulePath = $env:PSModulePath
 try {
     $env:PSModulePath = $artifacts + ';' + $savedModulePath

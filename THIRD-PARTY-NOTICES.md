@@ -15,7 +15,7 @@ preserved as `vendor/PSReadLine/License.txt` in source distributions and
 are retained in full. The project's MIT license does not relicense these files.
 
 The build adds command existence coloring and uses the local module version
-`2.4.5.1`. It is not an official Microsoft release or signed distribution.
+`2.4.5.2`. It is not an official Microsoft release or signed distribution.
 Published module output includes the upstream license alongside the modified
 binary, the project's license, and these notices.
 

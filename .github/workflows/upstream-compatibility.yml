@@ -1,0 +1,103 @@
+name: Upstream compatibility probe
+
+on:
+  schedule:
+    - cron: '37 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Bypass diagnostic reuse and rerun both experiments
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-compatibility
+  cancel-in-progress: false
+
+jobs:
+  supported-baseline:
+    name: Supported PSReadLine v2.4.5
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '8.0.x'
+      - run: .\tools\build.ps1
+      - run: |
+          foreach ($test in @('Test-Source','Test-Patching','Test-BuildSafety','Test-Distribution','Test-Highlighter','Test-DynamicEnvironment','Test-Installation','Test-Interactive')) {
+            & powershell.exe -NoLogo -NoProfile -NonInteractive -File ('.\tests\' + $test + '.ps1')
+            if ($LASTEXITCODE) { throw "Baseline $test failed." }
+          }
+
+  experimental:
+    name: Experimental upstream ${{ matrix.target }}
+    needs: supported-baseline
+    runs-on: windows-2022
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [tag, master]
+    defaults:
+      run:
+        shell: powershell
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '8.0.x'
+      - name: Discover and pin upstream input
+        id: discover
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/check_upstream.py --target ${{ matrix.target }} --directory .build/probe
+      - name: Reuse diagnostic for unchanged source and project
+        if: steps.discover.outputs.ready == 'true' && inputs.force != true
+        id: previous
+        uses: actions/cache@v5
+        with:
+          path: .build/probe/result.json
+          key: upstream-${{ runner.os }}-${{ matrix.target }}-${{ steps.discover.outputs.commit }}-${{ hashFiles('src/**', 'tools/**', 'tests/**', 'vendor/**', 'tools/build.ps1', 'release.json', 'global.json', 'nuget.config', '.github/workflows/upstream-compatibility.yml') }}
+      - name: Check patches, compile, and run experimental tests
+        if: steps.discover.outputs.ready == 'true' && steps.previous.outputs.cache-hit != 'true'
+        run: .\tools\Test-UpstreamProbe.ps1 -Discovery .build/probe/discovery.json -Report .build/probe/result.json
+      - name: Summarize experimental result
+        if: always()
+        run: |
+          '## Experimental compatibility only' | Out-File $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          'The supported baseline remains v2.4.5. No vendor changes, releases, Issues, or binary uploads are performed.' | Out-File $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          foreach ($name in @('discovery','result')) {
+            $path = '.build/probe/' + $name + '.json'
+            if (Test-Path $path) {
+              '```json' | Out-File $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+              $data = Get-Content $path -Raw | ConvertFrom-Json
+              $data.PSObject.Properties.Remove('source')
+              $data | ConvertTo-Json -Depth 6 | Set-Content $path -Encoding utf8
+              Get-Content $path | Out-File $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+              '```' | Out-File $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+            }
+          }
+      - name: Upload diagnostic JSON only
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: upstream-${{ matrix.target }}-diagnostics
+          path: .build/probe/*.json
+          if-no-files-found: warn
+          retention-days: 14

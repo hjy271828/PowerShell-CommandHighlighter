@@ -97,6 +97,30 @@ try {
     $render = $pipeline.Lines -join ''
     if (!$render.Contains($green + 'Get-Date') -or !$render.Contains($red + 'gittt') -or !$render.Contains($green + 'Where-Object')) { throw 'Pasted pipeline/multiple command colors failed.' }
     $script:checks++
+    Reset-Input
+    Send 'Set-Alias CHPendingUI Get-Date; CHPendingUI; Get-Date; CHNeverUI'
+    $dynamic = Snapshot
+    $render = $dynamic.Lines -join ''
+    if (!$render.Contains($dynamic.CommandColor + 'CHPendingUI') -or !$render.Contains($green + 'Get-Date') -or !$render.Contains($red + 'CHNeverUI')) { throw 'Pending alias did not retain neutral coloring alongside independent commands.' }
+    $script:checks++
+    Reset-Input
+    Send 'CHPendingUI'
+    Check 'CHPendingUI' $red 'editing an alias definition does not execute it'
+    Reset-Input
+    Send 'function CHFutureUI { }; CHFutureUI; Get-Date'
+    $dynamic = Snapshot
+    $render = $dynamic.Lines -join ''
+    if (!$render.Contains($dynamic.CommandColor + 'CHFutureUI') -or !$render.Contains($green + 'Get-Date')) { throw 'Pending function did not retain neutral coloring.' }
+    $script:checks++
+    Reset-Input
+    Send 'CHFutureUI'
+    Check 'CHFutureUI' $red 'editing a function definition does not execute it'
+    Reset-Input
+    Send '$env:PATH = "pending"; CHFutureExeUI; Get-Date'
+    $dynamic = Snapshot
+    $render = $dynamic.Lines -join ''
+    if (!$render.Contains($dynamic.CommandColor + 'CHFutureExeUI') -or !$render.Contains($green + 'Get-Date')) { throw 'Pending PATH change disabled independent cmdlet coloring.' }
+    $script:checks++
     if (!$pty.Transcript.Contains($green) -or !$pty.Transcript.Contains($red)) { throw 'No actual colored output reached the pseudoconsole.' }
     $script:checks++
     Write-Host "PASS: $script:checks real Windows ConPTY checks. UseUserProfile=$UseUserProfile; UseInstalledModule=$UseInstalledModule"

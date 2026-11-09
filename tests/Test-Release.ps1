@@ -28,7 +28,7 @@ try {
         if (!(Test-Path -LiteralPath (Join-Path $unpacked $relative) -PathType Leaf)) { throw "Release ZIP is missing $relative" }
     }
     $expectedRoot = @(
-        'install.ps1', 'uninstall.ps1', 'demo.ps1', 'release.json', 'README.md',
+        'install.ps1', 'uninstall.ps1', 'tools/Installation.Common.ps1', 'demo.ps1', 'release.json', 'README.md',
         'RELEASE-NOTES.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md',
         'third-party/Pager-LICENSE.txt', 'third-party/microsoft.powershell.pager.nuspec'
     )

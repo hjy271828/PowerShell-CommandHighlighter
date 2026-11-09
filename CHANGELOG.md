@@ -1,6 +1,21 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.1.1 - Unreleased
+
+- Group build/package/internal scripts under tools and the source demo under examples.
+
+- Preflight a shared context patch plan and all metadata before staging changes.
+- Preserve complete build artifacts on compiler and payload failure.
+- Use neutral highlighting for recognized pending command-environment changes.
+- Invalidate discovery caching when module autoload preferences change.
+- Retain the 250 ms TTL and 512-name capacity, with dynamic/side-effect regression coverage.
+- Add weekly isolated tag/master probes, diagnostic caching and bounded network handling.
+- Reject packaging experimental probe output; never update vendor automatically.
+- Harden installation ownership, literal paths, reparse checks and interrupted removal.
+- Install the new module as 2.4.5.2 alongside 2.4.5.1 to support rollback.
+- Expand real Windows PowerShell 5.1 interaction, failure and performance validation.
+
+## 0.1.0 - 2026-11-08
 
 - Add live command existence colors through a small PSReadLine 2.4.5 rendering patch.
 - Resolve static command names in the current PowerShell session with bounded caching.

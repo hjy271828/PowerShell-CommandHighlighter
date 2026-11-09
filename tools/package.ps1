@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param([string]$ArtifactsPath, [string]$OutputDirectory)
 $ErrorActionPreference = 'Stop'
-$root = $PSScriptRoot
+$root = Split-Path $PSScriptRoot -Parent
 if (!$ArtifactsPath) { $ArtifactsPath = Join-Path $root 'artifacts' }
 if (!$OutputDirectory) { $OutputDirectory = Join-Path $root 'artifacts/releases' }
 $release = Get-Content -LiteralPath (Join-Path $root 'release.json') -Raw | ConvertFrom-Json
@@ -19,6 +19,7 @@ if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -F
 New-Item $stage -ItemType Directory -Force | Out-Null
 $modulePath = 'artifacts/PSReadLine/' + $release.moduleVersion
 $moduleSource = Join-Path $ArtifactsPath ('PSReadLine/' + $release.moduleVersion)
+if (Test-Path -LiteralPath (Join-Path $moduleSource 'EXPERIMENTAL-NOT-FOR-DISTRIBUTION.txt')) { throw 'Experimental upstream probe output cannot be packaged.' }
 # Copy an explicit release inventory. Local installation records, PDBs, build
 # caches, and extra files placed in artifacts must not leak into the archive.
 $moduleFiles = @(
@@ -35,7 +36,7 @@ foreach ($relative in $moduleFiles) {
     New-Item (Split-Path $target -Parent) -ItemType Directory -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $moduleSource $relative) -Destination $target
 }
-foreach ($relative in @('install.ps1', 'uninstall.ps1', 'demo.ps1', 'release.json', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md')) {
+foreach ($relative in @('install.ps1', 'uninstall.ps1', 'release.json', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md')) {
     Copy-Item -LiteralPath (Join-Path $root $relative) -Destination $stage
 }
 # Keep the root notice file's relative third-party directory usable too.
@@ -43,6 +44,10 @@ New-Item (Join-Path $stage 'third-party') -ItemType Directory -Force | Out-Null
 foreach ($name in @('Pager-LICENSE.txt', 'microsoft.powershell.pager.nuspec')) {
     Copy-Item -LiteralPath (Join-Path $root ('third-party/' + $name)) -Destination (Join-Path $stage 'third-party')
 }
+# Keep binary entry points convenient while source utilities live in tools/examples.
+New-Item (Join-Path $stage 'tools') -ItemType Directory -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'tools/Installation.Common.ps1') -Destination (Join-Path $stage 'tools/Installation.Common.ps1')
+Copy-Item -LiteralPath (Join-Path $root 'examples/demo.ps1') -Destination (Join-Path $stage 'demo.ps1')
 Copy-Item -LiteralPath (Join-Path $root 'docs/release-readme.md') -Destination (Join-Path $stage 'README.md')
 $notes = Join-Path $root ('docs/releases/v' + $release.version + '.md')
 Copy-Item -LiteralPath $notes -Destination (Join-Path $stage 'RELEASE-NOTES.md')
