@@ -1,0 +1,596 @@
+{
+  "Date": "2026-11-09",
+  "BaselineCommit": "2d7b91167f891c86b9c02b973da8876adadd91eb",
+  "HistoricalBaseline": "windows-powershell-5.1.json",
+  "SameProcessComparison": {
+    "Date": "2026-11-09",
+    "PowerShell": "5.1.26100.9711",
+    "BaselineAssemblyVersion": "2.4.5.1",
+    "CandidateAssemblyVersion": "2.4.5.2",
+    "Scope": "Parser.ParseInput + Analyze; same process, alternating order, 8 warmup and 160 measured samples per version/scenario; excludes editor rendering and terminal IO",
+    "Results": [
+      {
+        "Scenario": "cached",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.014,
+        "P95Ms": 0.024,
+        "MaxMs": 0.044
+      },
+      {
+        "Scenario": "cached",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.016,
+        "P95Ms": 0.024,
+        "MaxMs": 0.049
+      },
+      {
+        "Scenario": "cold-valid",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.027,
+        "P95Ms": 0.406,
+        "MaxMs": 0.487
+      },
+      {
+        "Scenario": "cold-valid",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.032,
+        "P95Ms": 0.384,
+        "MaxMs": 0.689
+      },
+      {
+        "Scenario": "cold-missing",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 9.898,
+        "P95Ms": 19.909,
+        "MaxMs": 21.461
+      },
+      {
+        "Scenario": "cold-missing",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 9.884,
+        "P95Ms": 20.036,
+        "MaxMs": 34.937
+      },
+      {
+        "Scenario": "typing-cold",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 17.012,
+        "P95Ms": 19.405,
+        "MaxMs": 36.864
+      },
+      {
+        "Scenario": "typing-cold",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 16.697,
+        "P95Ms": 19.444,
+        "MaxMs": 21.177
+      },
+      {
+        "Scenario": "typing-cached",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.008,
+        "P95Ms": 0.009,
+        "MaxMs": 0.019
+      },
+      {
+        "Scenario": "typing-cached",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.008,
+        "P95Ms": 0.01,
+        "MaxMs": 0.011
+      },
+      {
+        "Scenario": "long-arguments",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.951,
+        "P95Ms": 1.714,
+        "MaxMs": 4.775
+      },
+      {
+        "Scenario": "long-arguments",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.968,
+        "P95Ms": 1.313,
+        "MaxMs": 4.048
+      },
+      {
+        "Scenario": "many-commands",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.12,
+        "P95Ms": 0.274,
+        "MaxMs": 0.363
+      },
+      {
+        "Scenario": "many-commands",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.133,
+        "P95Ms": 0.282,
+        "MaxMs": 1.295
+      }
+    ]
+  },
+  "SeparateProcessRuns": {
+    "baseline": [
+      {
+        "Date": "2026-11-09",
+        "PowerShell": "5.1.26100.9711",
+        "PSReadLine": "2.4.5.1",
+        "Scope": "Parser.ParseInput + Analyze in Windows PowerShell; excludes terminal IO, prediction, and first process/module startup",
+        "Results": [
+          {
+            "Scenario": "cached",
+            "Samples": 160,
+            "MedianMs": 0.014,
+            "P95Ms": 0.024,
+            "MaxMs": 5.296
+          },
+          {
+            "Scenario": "cold-valid",
+            "Samples": 160,
+            "MedianMs": 0.03,
+            "P95Ms": 0.377,
+            "MaxMs": 0.564
+          },
+          {
+            "Scenario": "cold-missing",
+            "Samples": 160,
+            "MedianMs": 9.785,
+            "P95Ms": 19.343,
+            "MaxMs": 28.923
+          },
+          {
+            "Scenario": "typing-cold",
+            "Samples": 160,
+            "MedianMs": 16.701,
+            "P95Ms": 48.516,
+            "MaxMs": 57.942
+          },
+          {
+            "Scenario": "typing-cached",
+            "Samples": 160,
+            "MedianMs": 0.021,
+            "P95Ms": 0.027,
+            "MaxMs": 32.569
+          },
+          {
+            "Scenario": "long-arguments",
+            "Samples": 160,
+            "MedianMs": 1.471,
+            "P95Ms": 2.432,
+            "MaxMs": 5.699
+          },
+          {
+            "Scenario": "many-commands",
+            "Samples": 160,
+            "MedianMs": 0.179,
+            "P95Ms": 0.228,
+            "MaxMs": 2.494
+          }
+        ]
+      },
+      {
+        "Date": "2026-11-09",
+        "PowerShell": "5.1.26100.9711",
+        "PSReadLine": "2.4.5.1",
+        "Scope": "Parser.ParseInput + Analyze in Windows PowerShell; excludes terminal IO, prediction, and first process/module startup",
+        "Results": [
+          {
+            "Scenario": "cached",
+            "Samples": 160,
+            "MedianMs": 0.014,
+            "P95Ms": 0.022,
+            "MaxMs": 4.265
+          },
+          {
+            "Scenario": "cold-valid",
+            "Samples": 160,
+            "MedianMs": 0.032,
+            "P95Ms": 0.404,
+            "MaxMs": 0.813
+          },
+          {
+            "Scenario": "cold-missing",
+            "Samples": 160,
+            "MedianMs": 10.257,
+            "P95Ms": 20.911,
+            "MaxMs": 44.23
+          },
+          {
+            "Scenario": "typing-cold",
+            "Samples": 160,
+            "MedianMs": 17.509,
+            "P95Ms": 23.465,
+            "MaxMs": 25.841
+          },
+          {
+            "Scenario": "typing-cached",
+            "Samples": 160,
+            "MedianMs": 0.008,
+            "P95Ms": 0.014,
+            "MaxMs": 20.105
+          },
+          {
+            "Scenario": "long-arguments",
+            "Samples": 160,
+            "MedianMs": 0.98,
+            "P95Ms": 1.941,
+            "MaxMs": 4.267
+          },
+          {
+            "Scenario": "many-commands",
+            "Samples": 160,
+            "MedianMs": 0.126,
+            "P95Ms": 0.25,
+            "MaxMs": 1.345
+          }
+        ]
+      },
+      {
+        "Date": "2026-11-09",
+        "PowerShell": "5.1.26100.9711",
+        "PSReadLine": "2.4.5.1",
+        "Scope": "Parser.ParseInput + Analyze in Windows PowerShell; excludes terminal IO, prediction, and first process/module startup",
+        "Results": [
+          {
+            "Scenario": "cached",
+            "Samples": 160,
+            "MedianMs": 0.014,
+            "P95Ms": 0.022,
+            "MaxMs": 4.34
+          },
+          {
+            "Scenario": "cold-valid",
+            "Samples": 160,
+            "MedianMs": 0.03,
+            "P95Ms": 0.378,
+            "MaxMs": 0.596
+          },
+          {
+            "Scenario": "cold-missing",
+            "Samples": 160,
+            "MedianMs": 9.916,
+            "P95Ms": 20.131,
+            "MaxMs": 29.983
+          },
+          {
+            "Scenario": "typing-cold",
+            "Samples": 160,
+            "MedianMs": 17.925,
+            "P95Ms": 55.615,
+            "MaxMs": 64.775
+          },
+          {
+            "Scenario": "typing-cached",
+            "Samples": 160,
+            "MedianMs": 0.028,
+            "P95Ms": 0.077,
+            "MaxMs": 53.689
+          },
+          {
+            "Scenario": "long-arguments",
+            "Samples": 160,
+            "MedianMs": 2.18,
+            "P95Ms": 3.304,
+            "MaxMs": 8.494
+          },
+          {
+            "Scenario": "many-commands",
+            "Samples": 160,
+            "MedianMs": 0.292,
+            "P95Ms": 0.456,
+            "MaxMs": 1.886
+          }
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "Date": "2026-11-09",
+        "PowerShell": "5.1.26100.9711",
+        "PSReadLine": "2.4.5.2",
+        "Scope": "Parser.ParseInput + Analyze in Windows PowerShell; excludes terminal IO, prediction, and first process/module startup",
+        "Results": [
+          {
+            "Scenario": "cached",
+            "Samples": 160,
+            "MedianMs": 0.015,
+            "P95Ms": 0.022,
+            "MaxMs": 4.443
+          },
+          {
+            "Scenario": "cold-valid",
+            "Samples": 160,
+            "MedianMs": 0.035,
+            "P95Ms": 0.382,
+            "MaxMs": 0.576
+          },
+          {
+            "Scenario": "cold-missing",
+            "Samples": 160,
+            "MedianMs": 9.3,
+            "P95Ms": 18.701,
+            "MaxMs": 29.41
+          },
+          {
+            "Scenario": "typing-cold",
+            "Samples": 160,
+            "MedianMs": 17.474,
+            "P95Ms": 55.601,
+            "MaxMs": 60.817
+          },
+          {
+            "Scenario": "typing-cached",
+            "Samples": 160,
+            "MedianMs": 0.009,
+            "P95Ms": 0.012,
+            "MaxMs": 51.377
+          },
+          {
+            "Scenario": "long-arguments",
+            "Samples": 160,
+            "MedianMs": 1.599,
+            "P95Ms": 3.246,
+            "MaxMs": 7.844
+          },
+          {
+            "Scenario": "many-commands",
+            "Samples": 160,
+            "MedianMs": 0.201,
+            "P95Ms": 0.311,
+            "MaxMs": 1.396
+          }
+        ]
+      },
+      {
+        "Date": "2026-11-09",
+        "PowerShell": "5.1.26100.9711",
+        "PSReadLine": "2.4.5.2",
+        "Scope": "Parser.ParseInput + Analyze in Windows PowerShell; excludes terminal IO, prediction, and first process/module startup",
+        "Results": [
+          {
+            "Scenario": "cached",
+            "Samples": 160,
+            "MedianMs": 0.018,
+            "P95Ms": 0.07,
+            "MaxMs": 4.689
+          },
+          {
+            "Scenario": "cold-valid",
+            "Samples": 160,
+            "MedianMs": 0.036,
+            "P95Ms": 0.391,
+            "MaxMs": 0.872
+          },
+          {
+            "Scenario": "cold-missing",
+            "Samples": 160,
+            "MedianMs": 9.974,
+            "P95Ms": 20.188,
+            "MaxMs": 29.149
+          },
+          {
+            "Scenario": "typing-cold",
+            "Samples": 160,
+            "MedianMs": 17.726,
+            "P95Ms": 51.594,
+            "MaxMs": 59.701
+          },
+          {
+            "Scenario": "typing-cached",
+            "Samples": 160,
+            "MedianMs": 0.031,
+            "P95Ms": 0.122,
+            "MaxMs": 43.615
+          },
+          {
+            "Scenario": "long-arguments",
+            "Samples": 160,
+            "MedianMs": 2.587,
+            "P95Ms": 3.938,
+            "MaxMs": 9.714
+          },
+          {
+            "Scenario": "many-commands",
+            "Samples": 160,
+            "MedianMs": 0.332,
+            "P95Ms": 0.414,
+            "MaxMs": 3.029
+          }
+        ]
+      },
+      {
+        "Date": "2026-11-09",
+        "PowerShell": "5.1.26100.9711",
+        "PSReadLine": "2.4.5.2",
+        "Scope": "Parser.ParseInput + Analyze in Windows PowerShell; excludes terminal IO, prediction, and first process/module startup",
+        "Results": [
+          {
+            "Scenario": "cached",
+            "Samples": 160,
+            "MedianMs": 0.017,
+            "P95Ms": 0.082,
+            "MaxMs": 5.1
+          },
+          {
+            "Scenario": "cold-valid",
+            "Samples": 160,
+            "MedianMs": 0.038,
+            "P95Ms": 0.52,
+            "MaxMs": 1.106
+          },
+          {
+            "Scenario": "cold-missing",
+            "Samples": 160,
+            "MedianMs": 9.804,
+            "P95Ms": 19.912,
+            "MaxMs": 28.666
+          },
+          {
+            "Scenario": "typing-cold",
+            "Samples": 160,
+            "MedianMs": 17.397,
+            "P95Ms": 52.168,
+            "MaxMs": 57.565
+          },
+          {
+            "Scenario": "typing-cached",
+            "Samples": 160,
+            "MedianMs": 0.03,
+            "P95Ms": 0.129,
+            "MaxMs": 56.236
+          },
+          {
+            "Scenario": "long-arguments",
+            "Samples": 160,
+            "MedianMs": 2.642,
+            "P95Ms": 3.464,
+            "MaxMs": 9.167
+          },
+          {
+            "Scenario": "many-commands",
+            "Samples": 160,
+            "MedianMs": 0.374,
+            "P95Ms": 0.471,
+            "MaxMs": 3.028
+          }
+        ]
+      }
+    ]
+  },
+  "Interpretation": "Separate processes showed large timing variance; same-process alternating order is the primary comparison. Cache parameters remain unchanged. Results exclude full rendering, prediction and terminal IO.",
+  "EarlierSameProcessComparison": {
+    "Date": "2026-11-09",
+    "PowerShell": "5.1.26100.9711",
+    "BaselineAssemblyVersion": "2.4.5.1",
+    "CandidateAssemblyVersion": "2.4.5.2",
+    "Scope": "Parser.ParseInput + Analyze; same process, alternating order, 8 warmup and 160 measured samples per version/scenario; excludes editor rendering and terminal IO",
+    "Results": [
+      {
+        "Scenario": "cached",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.014,
+        "P95Ms": 0.022,
+        "MaxMs": 0.036
+      },
+      {
+        "Scenario": "cached",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.015,
+        "P95Ms": 0.021,
+        "MaxMs": 0.091
+      },
+      {
+        "Scenario": "cold-valid",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.03,
+        "P95Ms": 0.407,
+        "MaxMs": 0.821
+      },
+      {
+        "Scenario": "cold-valid",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.032,
+        "P95Ms": 0.386,
+        "MaxMs": 0.879
+      },
+      {
+        "Scenario": "cold-missing",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 9.662,
+        "P95Ms": 19.406,
+        "MaxMs": 21.061
+      },
+      {
+        "Scenario": "cold-missing",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 9.766,
+        "P95Ms": 19.92,
+        "MaxMs": 31.365
+      },
+      {
+        "Scenario": "typing-cold",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 17.272,
+        "P95Ms": 19.457,
+        "MaxMs": 21.158
+      },
+      {
+        "Scenario": "typing-cold",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 17.289,
+        "P95Ms": 19.675,
+        "MaxMs": 20.628
+      },
+      {
+        "Scenario": "typing-cached",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.008,
+        "P95Ms": 0.009,
+        "MaxMs": 0.111
+      },
+      {
+        "Scenario": "typing-cached",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.009,
+        "P95Ms": 0.009,
+        "MaxMs": 0.027
+      },
+      {
+        "Scenario": "long-arguments",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.965,
+        "P95Ms": 1.438,
+        "MaxMs": 5.029
+      },
+      {
+        "Scenario": "long-arguments",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.981,
+        "P95Ms": 1.435,
+        "MaxMs": 4.193
+      },
+      {
+        "Scenario": "many-commands",
+        "Version": "baseline",
+        "Samples": 160,
+        "MedianMs": 0.124,
+        "P95Ms": 0.141,
+        "MaxMs": 1.328
+      },
+      {
+        "Scenario": "many-commands",
+        "Version": "candidate",
+        "Samples": 160,
+        "MedianMs": 0.138,
+        "P95Ms": 0.198,
+        "MaxMs": 1.144
+      }
+    ]
+  }
+}

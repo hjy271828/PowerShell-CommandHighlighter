@@ -13,7 +13,7 @@ Colors update while editing, before pressing Enter. Aliases, functions, discover
 
 **Implementation:** this project builds a small **C# patch to PSReadLine 2.4.5**. It is a separately installed PSReadLine fork, not a plugin using a public token-coloring API. It is an independent project and is not an official Microsoft release.
 
-Project version: **0.1.0 (experimental)**. The patched module uses **2.4.5.1** to distinguish it from its upstream base.
+Project version: **0.1.1 (experimental)**. The patched module uses **2.4.5.2** to distinguish it from its upstream base.
 
 ## Upstream provenance
 
@@ -33,6 +33,7 @@ The retained build sources come from [this exact upstream commit](https://github
 - Leaves arguments, comments, ordinary strings, variables, and unresolved dynamic expressions to normal syntax coloring.
 - Keeps PSReadLine's renderer, selection, editing, completion, history, and prediction paths.
 - Preserves unaccepted inline predictions as prediction text.
+- Keeps names affected by recognized pending alias/function/module/path changes neutral while checking unrelated commands.
 - Uses a bounded, short-lived cache without launching a process for each keystroke.
 - Installs to a separate current-user version directory without editing your profile or replacing existing module files.
 
@@ -55,13 +56,13 @@ Clone or download this repository to a **local Windows directory** and open Wind
 
 ```powershell
 dotnet --version
-.\build.ps1
-.\demo.ps1
+.\tools\build.ps1
+.\examples\demo.ps1
 ```
 
 The demo starts a nested PowerShell session with the patched module discoverable **before startup**, then loads your normal profile. Type `Get-Date`, append `tt`, and press Backspace twice to observe green, red, and green. Run `exit` to return to the original session.
 
-Use `.\demo.ps1 -NoUserProfile` for a clean session. The demo does not change persistent environment variables or profile files. Commands you execute in a normal demo session follow your own history settings.
+Use `.\examples\demo.ps1 -NoUserProfile` for a clean session. The demo does not change persistent environment variables or profile files. Commands you execute in a normal demo session follow your own history settings.
 
 For a WSL/Linux build:
 
@@ -71,7 +72,7 @@ python3 tools/build_wsl.py /path/to/dotnet
 
 Only if a minimal build environment lacks ICU, set `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` for that build process. This is not needed in a normal Windows setup.
 
-The build copies the pinned upstream source to `.build/upstream`, applies guarded patches, and publishes to `artifacts/PSReadLine/2.4.5.1/`. Patch preparation fails if an expected upstream anchor changes. Building does not install anything.
+The build copies the pinned upstream source to `.build/upstream`, applies guarded patches, and publishes to `artifacts/PSReadLine/2.4.5.2/`. Patch preparation fails if an expected upstream anchor changes. Building does not install anything.
 
 ## Prebuilt preview packages
 
@@ -98,7 +99,7 @@ After building from source or extracting a complete binary release:
 The default destination is calculated from the current user's Documents folder:
 
 ```text
-<Documents>\WindowsPowerShell\Modules\PSReadLine\2.4.5.1\
+<Documents>\WindowsPowerShell\Modules\PSReadLine\2.4.5.2\
 ```
 
 Open a **new Windows PowerShell process**. The new user module version is intended to be selected ahead of upstream 2.4.5. Existing modules, your profile, Oh My Posh configuration, terminal settings, and execution policy are left unchanged. No administrator privileges are needed.
@@ -110,7 +111,7 @@ Get-Module PSReadLine | Select-Object Version
 [PowerShellCommandHighlighter.CommandExistenceHighlighter]::Enabled
 ```
 
-The version should be `2.4.5.1` and highlighting should be enabled. To diagnose loading locally, inspect `[Microsoft.PowerShell.PSConsoleReadLine].Assembly.Location`; redact personal paths before sharing that output.
+The version should be `2.4.5.2` and highlighting should be enabled. To diagnose loading locally, inspect `[Microsoft.PowerShell.PSConsoleReadLine].Assembly.Location`; redact personal paths before sharing that output.
 
 Interactive PowerShell imports PSReadLine before running profiles. Importing a different build late in a profile cannot reliably replace an already loaded assembly. No new profile initialization is required. Existing `Import-Module PSReadLine -MinimumVersion 2.2.0` configuration can reuse the patched module; configurations pinned to another exact version need review.
 
@@ -120,6 +121,11 @@ An existing owned installation is reused only when its recorded files and the
 desired build match. A different build with the same module version is rejected
 instead of silently keeping stale files. Use a clean process to uninstall the
 old fork before reinstalling; the original upstream module files remain intact.
+
+v0.1.1 uses **2.4.5.2**, leaving v0.1.0's **2.4.5.1** untouched. To roll back,
+close shells using the new build and uninstall 2.4.5.2; restart PowerShell to
+select the next eligible version. Ownership validation rejects changed or extra
+files and directory links. Review such files before retrying removal.
 
 ## Disable and uninstall
 
@@ -160,11 +166,15 @@ powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Installatio
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Interactive.ps1
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Source.ps1
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Distribution.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Patching.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-BuildSafety.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-DynamicEnvironment.ps1
+python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 The source test prepares a fresh staging tree; it does not remove published artifacts. Optional profile and installed-module integration checks are described in [validation notes](docs/validation.md).
 
-The development validation passed **131 semantic/render checks** and **16 real ConPTY interaction checks** per tested configuration. ConPTY tests exercise actual input, deletion, completion, undo/redo, history search, multiline input, and accepting a gray inline prediction. They do not replace visual Windows Terminal testing.
+The development validation passed **131 semantic/render checks**, additional dynamic/cache regressions, and **21 real ConPTY interaction checks** per tested configuration. ConPTY tests exercise actual input, deletion, completion, undo/redo, history search, multiline input, and accepting a gray inline prediction. They do not replace visual Windows Terminal testing.
 
 A recorded benchmark measured parser plus highlighter P95 at **20.708 ms for cold typing**. There is no universal 20 ms guarantee, especially for missing commands or slow search paths. See [the measurement scope and results](docs/validation.md#performance) and [sanitized benchmark data](docs/benchmarks/windows-powershell-5.1.json).
 
@@ -188,21 +198,21 @@ or change repository visibility.
 status. After building:
 
 ```powershell
-.\package.ps1
+.\tools\package.ps1
 powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Release.ps1
 ```
 
-The first preview generates these files under `artifacts/releases/`:
+The preview build generates these files under `artifacts/releases/`:
 
 ```text
-PowerShell-CommandHighlighter-v0.1.0-windows-powershell5.1.zip
+PowerShell-CommandHighlighter-v0.1.1-windows-powershell5.1.zip
 SHA256SUMS.txt
 RELEASE-NOTES.md
 ```
 
 The package uses an explicit file inventory and excludes local installation
 records, PDBs, and extra files in the build directory. See the
-[release procedure](docs/releasing.md) and [v0.1.0 notes](docs/releases/v0.1.0.md)
+[release procedure](docs/releasing.md) and [v0.1.1 notes](docs/releases/v0.1.1.md)
 before creating the tag and draft release. Generated archives stay out of Git.
 Release builds disable compiler debug symbols; distribution checks also reject
 common local account paths embedded in project-built DLLs.
@@ -211,7 +221,9 @@ common local account paths embedded in project-built DLLs.
 
 The C# implementation lives in [src/CommandExistenceHighlighter.cs](src/CommandExistenceHighlighter.cs). Three guarded integration points connect it to PSReadLine's input parsing, token color selection, and per-prompt initialization. Module and assembly metadata identify the local build. Review the [upstream patch](docs/PSReadLine-v2.4.5.patch) and [technical rationale](docs/feasibility.md).
 
-Discovery uses `EngineIntrinsics.InvokeCommand.GetCommand(name, CommandTypes.All)` in the active session. Cache entries expire after 250 ms, are bounded to 512 names, and are cleared for each new ReadLine call and relevant environment/location changes. Dynamic command targets are never evaluated.
+See the [v0.1.1 change inventory](docs/v0.1.1-review.md) and [hardening review](docs/hardening.md) for patch safety, dynamic states, installation rollback and experimental upstream probes.
+
+Discovery uses `EngineIntrinsics.InvokeCommand.GetCommand(name, CommandTypes.All)` in the active session. Cache entries expire after 250 ms, are bounded to 512 names, and are cleared for each new ReadLine call and relevant environment/location/autoload preference changes. Dynamic command targets are never evaluated.
 
 This fork needs review when rebasing onto a newer PSReadLine. A newer upstream module can take precedence and disable the custom coloring. Do not increase the local version merely to outrank an unreviewed release. This patched `PSReadLine` package is not published to PowerShell Gallery under Microsoft's package identity.
 
@@ -220,12 +232,19 @@ This fork needs review when rebasing onto a newer PSReadLine. A newer upstream m
 ```text
 src/            Additional C# implementation
 tests/          PowerShell checks and the ConPTY harness
-tools/          WSL build helper and public-source checks
+tools/          Build/package scripts, shared helpers, upstream probes and source checks
+examples/       Interactive demo for a source checkout
 docs/           Design, validation, patch, and sanitized benchmarks
 vendor/         Pinned PSReadLine build sources and upstream license
 third-party/    Pager license and original package metadata
 .github/        Windows CI workflow and issue template
 ```
+
+The repository root keeps `install.ps1` and `uninstall.ps1` as user entry points.
+Run development commands from the repository root with `tools/build.ps1`,
+`tools/package.ps1` and `examples/demo.ps1`. The binary ZIP intentionally exposes
+`demo.ps1` at its root and keeps shared installation code in `tools/`; follow
+its standalone README rather than the source build instructions.
 
 ## Contributing and licensing
 

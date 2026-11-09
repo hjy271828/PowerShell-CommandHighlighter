@@ -3,7 +3,7 @@
 param([string]$OutputPath)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-Import-Module "$root/artifacts/PSReadLine/2.4.5.1/PSReadLine.psd1"
+Import-Module "$root/artifacts/PSReadLine/2.4.5.2/PSReadLine.psd1"
 $highlighter = New-Object PowerShellCommandHighlighter.CommandExistenceHighlighter
 $tokens = $null; $errors = $null
 $ast = [Management.Automation.Language.Parser]::ParseInput('Get-Date', [ref]$tokens, [ref]$errors)

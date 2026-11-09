@@ -42,6 +42,7 @@ if (!$pagerLicense.Contains('Copyright (c) 2020 PowerShell Team') -or
 if ($SourceOnly) { Write-Host 'PASS: source distribution notices and pinned upstream provenance.'; return }
 
 $module = Join-Path $ArtifactsPath ('PSReadLine/' + $provenance.moduleVersion)
+if (Test-Path -LiteralPath (Join-Path $module 'EXPERIMENTAL-NOT-FOR-DISTRIBUTION.txt')) { throw 'Experimental upstream probe payload cannot be distributed.' }
 $copies = [ordered]@{
     'vendor/PSReadLine/License.txt' = 'License.txt'
     'LICENSE' = 'CommandHighlighter-LICENSE.txt'

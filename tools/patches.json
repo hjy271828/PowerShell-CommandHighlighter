@@ -1,0 +1,17 @@
+[
+  {
+    "file": "PSReadLine/Render.cs",
+    "before": "        private int GenerateRender(string defaultColor)\n        {\n            var text = ParseInput();\n            _prediction.QueryForSuggestion(text);",
+    "after": "        private int GenerateRender(string defaultColor)\n        {\n            var text = ParseInput();\n            _commandHighlighter.Analyze(_ast, _engineIntrinsics);\n            _prediction.QueryForSuggestion(text);"
+  },
+  {
+    "file": "PSReadLine/Render.cs",
+    "before": "        private string GetTokenColor(Token token)\n        {\n            if ((token.TokenFlags & TokenFlags.CommandName) != 0)",
+    "after": "        private string GetTokenColor(Token token)\n        {\n            var commandColor = _commandHighlighter.GetColor(token);\n            return commandColor ?? GetDefaultTokenColor(token);\n        }\n\n        private string GetDefaultTokenColor(Token token)\n        {\n            if ((token.TokenFlags & TokenFlags.CommandName) != 0)"
+  },
+  {
+    "file": "PSReadLine/ReadLine.cs",
+    "before": "        private void Initialize(Runspace runspace, EngineIntrinsics engineIntrinsics)\n        {\n            _engineIntrinsics = engineIntrinsics;\n            _runspace = runspace;",
+    "after": "        private void Initialize(Runspace runspace, EngineIntrinsics engineIntrinsics)\n        {\n            _engineIntrinsics = engineIntrinsics;\n            _commandHighlighter.Reset();\n            _runspace = runspace;"
+  }
+]

@@ -28,7 +28,7 @@ Git can normalize line endings; the code and attribution remain unchanged.
 Both build scripts produce the same module layout:
 
 ```text
-PSReadLine/2.4.5.1/
+PSReadLine/2.4.5.2/
   Microsoft.PowerShell.PSReadLine.dll
   Microsoft.PowerShell.Pager.dll
   PSReadLine.psd1
@@ -51,9 +51,9 @@ The installed module's additional ownership record is local installation
 metadata and is not needed in a release archive.
 
 The user-facing release ZIP wraps this complete module under
-`artifacts/PSReadLine/2.4.5.1/` and also includes `install.ps1`, `uninstall.ps1`,
-`demo.ps1`, `release.json`, a standalone README, release notes, the changelog,
-and top-level project/third-party notices. Run `package.ps1` after building.
+`artifacts/PSReadLine/2.4.5.2/` and also includes `install.ps1`, `uninstall.ps1`,
+`demo.ps1`, `tools/Installation.Common.ps1`, `release.json`, a standalone README, release notes, the changelog,
+and top-level project/third-party notices. Run `tools/package.ps1` after building.
 It copies an explicit inventory, rather than every file found in artifacts.
 The versioned ZIP and its `SHA256SUMS.txt` are the files attached to a release.
 

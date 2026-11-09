@@ -4,7 +4,7 @@ param([string]$ArtifactsPath)
 $ErrorActionPreference = 'Stop'
 if (!$ArtifactsPath) { $ArtifactsPath = Join-Path $PSScriptRoot '../artifacts' }
 if ('Microsoft.PowerShell.PSConsoleReadLine' -as [type]) { throw 'Run this test in a fresh powershell.exe -NoProfile process.' }
-Import-Module "$ArtifactsPath/PSReadLine/2.4.5.1/PSReadLine.psd1"
+Import-Module "$ArtifactsPath/PSReadLine/2.4.5.2/PSReadLine.psd1"
 $script:checks = 0
 function Assert($condition, [string]$message) {
     if (!$condition) { throw "FAIL: $message" }

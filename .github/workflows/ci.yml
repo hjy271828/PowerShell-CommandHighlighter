@@ -30,18 +30,28 @@ jobs:
         run: python tools/check_public_source.py
       - name: Validate scripts and prepare guarded patches
         run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Source.ps1
+      - name: Test guarded patches and upstream discovery helpers
+        run: |
+          python -m unittest discover -s tests -p "test_*.py" -v
+          if ($LASTEXITCODE) { throw 'Python tests failed.' }
+          powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Patching.ps1 -Python python
+          if ($LASTEXITCODE) { throw 'Patch regression failed.' }
       - name: Build
-        run: .\build.ps1
+        run: .\tools\build.ps1
       - name: Verify source and binary distribution notices
         run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Distribution.ps1
       - name: Test command analysis and rendering
         run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Highlighter.ps1
+      - name: Verify failed builds preserve published artifacts
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-BuildSafety.ps1
+      - name: Test dynamic command environments and discovery side effects
+        run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-DynamicEnvironment.ps1
       - name: Test temporary installation and removal
         run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Installation.ps1
       - name: Test real ConPTY editing and predictions
         run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Interactive.ps1
       - name: Package release ZIP and checksums
-        run: .\package.ps1
+        run: .\tools\package.ps1
       - name: Test extracted release installation and editing
         run: powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Release.ps1
       - name: Upload reviewed release files

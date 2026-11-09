@@ -1,6 +1,94 @@
 # Validation notes
 
-## Recorded development validation
+## v0.1.1 hardening validation
+
+Validation on 2026-11-09 used Windows PowerShell 5.1.26100.9711, Windows 11,
+and native .NET SDK 8.0.427. The baseline was rebuilt from commit
+`2d7b91167f891c86b9c02b973da8876adadd91eb`; it passed the original 131 semantic/
+render assertions, installation regression and 16 ConPTY checks before changes.
+The new fork uses module version 2.4.5.2; upstream remains pinned to v2.4.5.
+
+The v0.1.1 review covers:
+
+| Check | Result |
+| --- | --- |
+| Existing semantic/render tests | All 131 assertions retained and passed. |
+| Dynamic/discovery/cache tests | All 97 assertions passed, including pending definitions, scopes, module discovery/removal, autoload settings, explicit scripts and cache invalidation passed. |
+| Context patch failures | 16 native PowerShell assertions passed; all four patched files matched Python preparation byte for byte. |
+| Offline helper tests | Eight Python unittest cases passed, including late mismatches, repeated injection, metadata drift, throttling, retry bounds and unsafe archives. |
+| Publication failures | Compiler failure and missing output preserved the complete preceding artifacts; experimental package/install attempts were rejected. |
+| Installation regression | Clean/repeat install, modified build, locked files, unowned content, traversal, junctions, interrupted removal, copy failure, version conflict, rollback and literal bracket paths passed. |
+| Preservation | Existing profile/module hashes and execution policies were unchanged. Tests used temporary module roots. |
+| Real interactive editor | 21 ConPTY assertions passed, retaining original editing/prediction coverage and adding pending alias/function/PATH cases. |
+| Extracted ZIP | Checksum, exact 25-file inventory, licenses, fresh loading, 21 installed-module ConPTY checks and uninstall passed. |
+| Workflow validation | Both workflows passed actionlint 1.7.12. No hosted run for this branch is implied by local results. |
+
+Only sanitized timing/version data is committed. Private paths, profile data,
+raw terminal output and local installation state are excluded. Windows GUI,
+clipboard, all Vi modes, PowerShell 7 and the full upstream xUnit suite remain
+outside this validation. See [hardening.md](hardening.md) for safeguards and
+static-analysis/discovery limits.
+
+### Performance comparison
+
+The original single-version benchmark was retained. Three alternating separate-
+process runs per version showed substantial machine/discovery variance:
+cold-typing P95 varied from 23.465 to 55.615 ms in the rebuilt v0.1.0 baseline
+and 51.594 to 55.601 ms in the candidate. These do not establish a universal
+latency bound or a reliable regression percentage.
+
+A new `tests/Compare-Highlighter.ps1` loads both distinct assembly versions in
+one Windows PowerShell process and alternates which version is measured first.
+Each scenario warms both instances for eight iterations before taking 160
+samples each. Both versions use the same parser, session and OS discovery state.
+The scope remains parser plus analysis, excluding editor rendering/prediction/
+terminal I/O. Cache TTL/capacity remain **250 ms / 512 names**.
+
+| Scenario | v0.1.0 median / P95 (ms) | v0.1.1 median / P95 (ms) |
+| --- | ---: | ---: |
+| Cached command | 0.014 / 0.024 | 0.016 / 0.024 |
+| Cold valid | 0.027 / 0.406 | 0.032 / 0.384 |
+| Cold missing | 9.898 / 19.909 | 9.884 / 20.036 |
+| Cold typing | 17.012 / 19.405 | 16.697 / 19.444 |
+| Cached typing | 0.008 / 0.009 | 0.008 / 0.010 |
+| Approximately 36 KB line | 0.951 / 1.714 | 0.968 / 1.313 |
+| 100 statements | 0.120 / 0.274 | 0.133 / 0.282 |
+
+No unacceptable key-path regression was observed in this environment: paired
+cold-typing P95 increased 0.039 ms, long-line P95 decreased 0.401 ms,
+and 100-statement P95 increased 0.008 ms. These are observations, not a guarantee.
+Candidate cold-missing maximum was 34.937 ms and separate-process runs were much
+noisier. The original v0.1.0 recorded cold-typing P95 was 20.708 ms and long-line
+P95 was 1.725 ms; hardware/session variation prevents treating that older run
+as a controlled before/after comparison. The sanitized [comparison data](benchmarks/v0.1.1-comparison.json)
+retains all separate-process runs and the earlier same-process measurement.
+
+To repeat the paired comparison, keep the preceding release DLL in a separate
+local directory and run:
+
+```powershell
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Compare-Highlighter.ps1 -BaselineAssembly .\previous\Microsoft.PowerShell.PSReadLine.dll -OutputPath .\test-results\comparison.json
+```
+
+### Live upstream probe observations
+
+On 2026-11-09 the latest semantic tag was still v2.4.5 at the pinned SHA. Its
+full upstream snapshot passed preparation, native build, semantic/dynamic tests
+and 21 ConPTY assertions in the experimental sandbox.
+
+Master at `a2d143f78904f8a954f8d4b055e55ceca6939bfc` differed in five retained
+files and lacked three baseline files, including `Polyfill/Polyfill.csproj`.
+Rendering hooks still matched, but the experimental build failed because that
+build project no longer exists. Diagnostics reported the failing phase; master
+is not supported and was not released. The missing-input diagnostic was then
+made explicit in the build helper. The supported vendor tree was unchanged.
+
+The weekly workflow starts after merging to the default branch. A probe summary
+must be read by its JSON status, not inferred from a green experimental job.
+Offline/rate-limit inputs are unavailable; experimental failures never create
+Issues or publish DLLs. See [the workflow](../.github/workflows/upstream-compatibility.yml).
+
+## Recorded v0.1.0 development validation
 
 The initial validation used Windows 11, Windows PowerShell **5.1.26100.9711**, and a patched PSReadLine module version **2.4.5.1**. Compilation used .NET SDK **8.0.427** on WSL/Linux, with the resulting DLLs loaded and exercised in Windows PowerShell. These are observations from one development environment, not a support matrix covering every Windows configuration.
 

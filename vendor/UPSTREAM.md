@@ -16,8 +16,8 @@ to binary distributions as `UPSTREAM.json`.
 Build staging adds `src/CommandExistenceHighlighter.cs` and applies three guarded
 integration changes: analyze the parsed AST during rendering, consult command
 colors before the existing token-color logic, and clear state at each ReadLine
-initialization. Module and assembly metadata mark the build as `2.4.5.1` with
-an informational version of `2.4.5-commandhighlighter.1`.
+initialization. Module and assembly metadata mark the build as `2.4.5.2` with
+an informational version of `2.4.5-commandhighlighter.2`.
 
 These are project-local identifiers, not an official PSReadLine release. See
 [the generated review patch](../docs/PSReadLine-v2.4.5.patch). Builds fail if an
