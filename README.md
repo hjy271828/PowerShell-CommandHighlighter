@@ -1,255 +1,92 @@
 # PowerShell CommandHighlighter
 
-Real-time command existence highlighting for **Windows PowerShell 5.1**, inspired by `zsh-syntax-highlighting`.
+Real-time command highlighting for **Windows PowerShell 5.1**, inspired by `zsh-syntax-highlighting`. As you type, valid commands turn green and unknown ones turn red, before you press Enter.
 
-| Input | Command color |
+| Input | Result |
 | --- | --- |
 | `Get-Date` | Green (`#4CAF50`) |
 | `Get-Datett` | Red (`#FF6688`) |
-| `ls nonexistent` | Green for `ls`; the argument is not validated |
-| `git status; python --version` | Each command is checked independently |
+| `ls nonexistent` | `ls` is green; arguments keep normal coloring |
+| `git status; python --version` | Each command is checked on its own |
 
-Colors update while editing, before pressing Enter. Aliases, functions, discoverable module commands, external programs, and explicit script or executable paths are resolved using the current PowerShell session.
+## Quick start
 
-**Implementation:** this project builds a small **C# patch to PSReadLine 2.4.5**. It is a separately installed PSReadLine fork, not a plugin using a public token-coloring API. It is an independent project and is not an official Microsoft release.
+1. Download `PowerShell-CommandHighlighter-v0.1.1-windows-powershell5.1.zip` from the [latest release](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1) and extract it to a local folder.
+2. Open Windows PowerShell in that folder and run:
 
-Current release: **[v0.1.1 (pre-release)](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1)**, published on **2026-11-09**. The patched module uses **2.4.5.2** to distinguish it from its upstream base.
+   ```powershell
+   .\install.ps1
+   ```
 
-## Upstream provenance
+3. Open a new PowerShell window and type `Get-Date`, then `Get-Datett`.
+
+That's it. No admin rights, profile edits, or extra configuration needed. Your existing profile, Oh My Posh theme, and terminal settings keep working as before.
+
+If Windows blocks the downloaded scripts, run `Get-ChildItem -Recurse -File | Unblock-File` in the extracted folder first. The ZIP's own README has more details.
+
+### Turn it off or uninstall
+
+```powershell
+# Toggle for the current session
+[PowerShellCommandHighlighter.CommandExistenceHighlighter]::Enabled = $false
+
+# Uninstall (close other PowerShell windows first)
+powershell.exe -NoProfile -File .\uninstall.ps1
+```
+
+After uninstalling, new shells go back to the stock PSReadLine.
+
+## Features
+
+- Recognizes cmdlets, aliases, functions, module commands, external programs, and script/executable paths in your current session.
+- Works across pipelines, multiple statements, nested script blocks, and quoted commands after `&`.
+- Arguments, strings, comments, and variables keep PSReadLine's normal colors.
+- Completion, history, selection, undo/redo, and inline predictions all work as usual.
+- Fast: lookups are cached briefly, and nothing is executed while you type.
+
+Green means the command can be found, not that it will succeed.
+
+## Compatibility
+
+| | |
+| --- | --- |
+| Shell | Windows PowerShell 5.1 (PowerShell 7 not yet tested) |
+| Terminal | Any VT-capable terminal, e.g. Windows Terminal |
+| Tested on | Windows 11 |
+| Based on | PSReadLine 2.4.5 (installed as module version `2.4.5.2`) |
+
+## How it works
+
+This project is a small C# patch on top of [PSReadLine](https://github.com/PowerShell/PSReadLine) 2.4.5, installed as a separate module version that PowerShell picks up at startup. It is an independent project, not an official Microsoft release.
+
+- The highlighter lives in [src/CommandExistenceHighlighter.cs](src/CommandExistenceHighlighter.cs) and hooks into PSReadLine at three points: input parsing, token coloring, and per-prompt setup.
+- Command names are found statically from the PowerShell AST and resolved with `InvokeCommand.GetCommand(name, CommandTypes.All)`. Dynamic expressions are never evaluated.
+- Results are cached for 250 ms (up to 512 names) and the cache resets on each new prompt or when location, aliases, functions, or modules change.
+
+Upstream base:
 
 ```text
-Upstream:     PowerShell/PSReadLine
-Base version: v2.4.5
+Upstream:     PowerShell/PSReadLine v2.4.5
 Base commit:  98d5610f7210924b79f553d982e10a9bd64dd52f
 License:      BSD-2-Clause
 ```
 
-The retained build sources come from [this exact upstream commit](https://github.com/PowerShell/PSReadLine/tree/98d5610f7210924b79f553d982e10a9bd64dd52f). Git may normalize line endings according to `.gitattributes`; the upstream code and copyright notices are retained. Project modifications are applied only in build staging. See [vendor/UPSTREAM.md](vendor/UPSTREAM.md), [machine-readable provenance](vendor/PSReadLine.provenance.json), and [the review patch](docs/PSReadLine-v2.4.5.patch).
+See the [upstream patch](docs/PSReadLine-v2.4.5.patch), [design notes](docs/feasibility.md), [vendor/UPSTREAM.md](vendor/UPSTREAM.md), and [validation & benchmarks](docs/validation.md).
 
-## Features
+## Build from source
 
-- Checks only statically identifiable command names using PowerShell's AST and command discovery.
-- Handles pipelines, multiple statements, nested script blocks, and quoted commands after `&`.
-- Leaves arguments, comments, ordinary strings, variables, and unresolved dynamic expressions to normal syntax coloring.
-- Keeps PSReadLine's renderer, selection, editing, completion, history, and prediction paths.
-- Preserves unaccepted inline predictions as prediction text.
-- Keeps names affected by recognized pending alias/function/module/path changes neutral while checking unrelated commands.
-- Uses a bounded, short-lived cache without launching a process for each keystroke.
-- Installs to a separate current-user version directory without editing your profile or replacing existing module files.
-
-A green command is discoverable, not guaranteed to execute successfully. Parameters, execution policy, program installation placeholders, and command results are outside the feature's scope. Discovery can auto-import modules and run their initialization code; the input command itself is never invoked for highlighting.
-
-## Requirements
-
-| Purpose | Requirements |
-| --- | --- |
-| Run | Windows PowerShell 5.1, its .NET Framework runtime, and a VT-capable terminal such as Windows Terminal |
-| Build | .NET SDK 8.x and network access for the initial NuGet restore |
-| Build from WSL/Linux | The same SDK plus Python 3 |
-| Run integration tests | Windows with ConPTY support; the tested desktop platform is Windows 11 |
-
-PowerShell 7 deployment is not validated. The installer intentionally targets Windows PowerShell Desktop. Oh My Posh is optional and continues to use your existing configuration.
-
-## Build and try without installing
-
-Clone or download this repository to a **local Windows directory** and open Windows PowerShell in its root. Generated DLLs and release archives are not checked into this source repository.
+Requires the .NET SDK 8.x. From the repository root in Windows PowerShell:
 
 ```powershell
-dotnet --version
 .\tools\build.ps1
-.\examples\demo.ps1
+.\examples\demo.ps1     # try it in a nested session without installing
+.\install.ps1           # or install it
 ```
 
-The demo starts a nested PowerShell session with the patched module discoverable **before startup**, then loads your normal profile. Type `Get-Date`, append `tt`, and press Backspace twice to observe green, red, and green. Run `exit` to return to the original session.
+On WSL/Linux: `python3 tools/build_wsl.py /path/to/dotnet`.
 
-Use `.\examples\demo.ps1 -NoUserProfile` for a clean session. The demo does not change persistent environment variables or profile files. Commands you execute in a normal demo session follow your own history settings.
+Tests, packaging, and release steps are described in [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/releasing.md](docs/releasing.md).
 
-For a WSL/Linux build:
+## License
 
-```sh
-python3 tools/build_wsl.py /path/to/dotnet
-```
-
-Only if a minimal build environment lacks ICU, set `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` for that build process. This is not needed in a normal Windows setup.
-
-The build copies the pinned upstream source to `.build/upstream`, applies guarded patches, and publishes to `artifacts/PSReadLine/2.4.5.2/`. Patch preparation fails if an expected upstream anchor changes. Building does not install anything.
-
-## Prebuilt preview packages
-
-Download `PowerShell-CommandHighlighter-v0.1.1-windows-powershell5.1.zip` and
-`SHA256SUMS.txt` from the [v0.1.1 release](https://github.com/hjy271828/PowerShell-CommandHighlighter/releases/tag/v0.1.1).
-GitHub's automatic source archives contain
-source code and still require building. The binary ZIP includes installation,
-removal, a demo, and all component notices; using it does not need an SDK.
-
-Verify the ZIP with `Get-FileHash -Algorithm SHA256`, compare the result with
-`SHA256SUMS.txt`, and extract it to a local directory. Follow the README inside
-that ZIP, including the reviewed downloaded-file unblocking instructions if
-Windows blocks unsigned downloaded scripts. Execution policy is not changed.
-
-## Install
-
-After building from source or extracting a complete binary release:
-
-```powershell
-.\install.ps1 -WhatIf
-.\install.ps1
-```
-
-The default destination is calculated from the current user's Documents folder:
-
-```text
-<Documents>\WindowsPowerShell\Modules\PSReadLine\2.4.5.2\
-```
-
-Open a **new Windows PowerShell process**. The new user module version is intended to be selected ahead of upstream 2.4.5. Existing modules, your profile, Oh My Posh configuration, terminal settings, and execution policy are left unchanged. No administrator privileges are needed.
-
-Check the loaded module:
-
-```powershell
-Get-Module PSReadLine | Select-Object Version
-[PowerShellCommandHighlighter.CommandExistenceHighlighter]::Enabled
-```
-
-The version should be `2.4.5.2` and highlighting should be enabled. To diagnose loading locally, inspect `[Microsoft.PowerShell.PSConsoleReadLine].Assembly.Location`; redact personal paths before sharing that output.
-
-Interactive PowerShell imports PSReadLine before running profiles. Importing a different build late in a profile cannot reliably replace an already loaded assembly. No new profile initialization is required. Existing `Import-Module PSReadLine -MinimumVersion 2.2.0` configuration can reuse the patched module; configurations pinned to another exact version need review.
-
-The installer refuses to overwrite an unrelated directory and stops when an equal or newer unowned PSReadLine version is available. If your execution policy rejects scripts from a network share, use a reviewed local checkout; these scripts do not change execution policy.
-
-An existing owned installation is reused only when its recorded files and the
-desired build match. A different build with the same module version is rejected
-instead of silently keeping stale files. Use a clean process to uninstall the
-old fork before reinstalling; the original upstream module files remain intact.
-
-v0.1.1 uses **2.4.5.2**, leaving v0.1.0's **2.4.5.1** untouched. To roll back,
-close shells using the new build and uninstall 2.4.5.2; restart PowerShell to
-select the next eligible version. Ownership validation rejects changed or extra
-files and directory links. Review such files before retrying removal.
-
-## Disable and uninstall
-
-Disable existence coloring in the current session:
-
-```powershell
-[PowerShellCommandHighlighter.CommandExistenceHighlighter]::Enabled = $false
-```
-
-Re-enable it and clear cached results:
-
-```powershell
-[PowerShellCommandHighlighter.CommandExistenceHighlighter]::Enabled = $true
-[Microsoft.PowerShell.PSConsoleReadLine]::ClearCommandHighlighterCache()
-```
-
-The next normal edit or redraw uses the updated setting. Close other shells
-using this build, then uninstall from a clean process or Command Prompt in the
-repository root:
-
-```powershell
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\uninstall.ps1
-```
-
-Only the version directory carrying this project's ownership record is removed. A new shell can select the original PSReadLine again. No profile restoration is required. Pass the same `-InstallRoot` to installation and uninstallation if using a custom destination; custom destinations must already be discoverable at shell startup.
-
-If DLLs are still in use, the uninstaller stops before deleting module files.
-Its ownership record is kept until the other files have been removed, allowing
-an interrupted removal to be retried.
-
-## Tests and performance
-
-Run each test in a clean process after building:
-
-```powershell
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Highlighter.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Installation.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Interactive.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Source.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Distribution.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Patching.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-BuildSafety.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-DynamicEnvironment.ps1
-python -m unittest discover -s tests -p "test_*.py" -v
-```
-
-The source test prepares a fresh staging tree; it does not remove published artifacts. Optional profile and installed-module integration checks are described in [validation notes](docs/validation.md).
-
-The development validation passed **131 semantic/render checks**, additional dynamic/cache regressions, and **21 real ConPTY interaction checks** per tested configuration. ConPTY tests exercise actual input, deletion, completion, undo/redo, history search, multiline input, and accepting a gray inline prediction. They do not replace visual Windows Terminal testing.
-
-A recorded benchmark measured parser plus highlighter P95 at **20.708 ms for cold typing**. There is no universal 20 ms guarantee, especially for missing commands or slow search paths. See [the measurement scope and results](docs/validation.md#performance) and [sanitized benchmark data](docs/benchmarks/windows-powershell-5.1.json).
-
-Run your own benchmark without collecting account paths or environment dumps:
-
-```powershell
-New-Item test-results -ItemType Directory -Force | Out-Null
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Measure-Highlighter.ps1 -OutputPath .\test-results\benchmark.json
-```
-
-A [Windows CI workflow](.github/workflows/ci.yml) builds, tests, packages a ZIP,
-and validates installation and editing from that extracted ZIP. Successful runs
-upload a `release-assets` artifact containing the ZIP, checksums, and release
-notes. Check the workflow for the exact commit being released; local development
-results do not imply a passing hosted run. CI does not publish a GitHub Release
-or change repository visibility.
-
-## Prepare a release
-
-`release.json` records the project version, patched module version, and preview
-status. After building:
-
-```powershell
-.\tools\package.ps1
-powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Release.ps1
-```
-
-The preview build generates these files under `artifacts/releases/`:
-
-```text
-PowerShell-CommandHighlighter-v0.1.1-windows-powershell5.1.zip
-SHA256SUMS.txt
-RELEASE-NOTES.md
-```
-
-The package uses an explicit file inventory and excludes local installation
-records, PDBs, and extra files in the build directory. See the
-[release procedure](docs/releasing.md) and [v0.1.1 notes](docs/releases/v0.1.1.md)
-before creating the tag and draft release. Generated archives stay out of Git.
-Release builds disable compiler debug symbols; distribution checks also reject
-common local account paths embedded in project-built DLLs.
-
-## Architecture and maintenance
-
-The C# implementation lives in [src/CommandExistenceHighlighter.cs](src/CommandExistenceHighlighter.cs). Three guarded integration points connect it to PSReadLine's input parsing, token color selection, and per-prompt initialization. Module and assembly metadata identify the local build. Review the [upstream patch](docs/PSReadLine-v2.4.5.patch) and [technical rationale](docs/feasibility.md).
-
-See the [v0.1.1 change inventory](docs/v0.1.1-review.md) and [hardening review](docs/hardening.md) for patch safety, dynamic states, installation rollback and experimental upstream probes.
-
-Discovery uses `EngineIntrinsics.InvokeCommand.GetCommand(name, CommandTypes.All)` in the active session. Cache entries expire after 250 ms, are bounded to 512 names, and are cleared for each new ReadLine call and relevant environment/location/autoload preference changes. Dynamic command targets are never evaluated.
-
-This fork needs review when rebasing onto a newer PSReadLine. A newer upstream module can take precedence and disable the custom coloring. Do not increase the local version merely to outrank an unreviewed release. This patched `PSReadLine` package is not published to PowerShell Gallery under Microsoft's package identity.
-
-## Repository layout
-
-```text
-src/            Additional C# implementation
-tests/          PowerShell checks and the ConPTY harness
-tools/          Build/package scripts, shared helpers, upstream probes and source checks
-examples/       Interactive demo for a source checkout
-docs/           Design, validation, patch, and sanitized benchmarks
-vendor/         Pinned PSReadLine build sources and upstream license
-third-party/    Pager license and original package metadata
-.github/        Windows CI workflow and issue template
-```
-
-The repository root keeps `install.ps1` and `uninstall.ps1` as user entry points.
-Run development commands from the repository root with `tools/build.ps1`,
-`tools/package.ps1` and `examples/demo.ps1`. The binary ZIP intentionally exposes
-`demo.ps1` at its root and keeps shared installation code in `tools/`; follow
-its standalone README rather than the source build instructions.
-
-## Contributing and licensing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development, review, and privacy guidance. There is already a related [upstream feature request](https://github.com/PowerShell/PSReadLine/issues/3439); discuss architecture there before opening a duplicate proposal.
-
-New project code is MIT-licensed. Vendored PSReadLine remains under its original BSD-2-Clause license and retained copyright notices. See [LICENSE](LICENSE), [the upstream license](vendor/PSReadLine/License.txt), and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-
-Source distributions must retain the vendored notices and license files. Binary distributions should include the complete generated module directory: `License.txt` (PSReadLine), `CommandHighlighter-LICENSE.txt` (project additions), `THIRD-PARTY-NOTICES.md`, `UPSTREAM.json`, and `third-party/` accompany the DLLs. Do not distribute only a DLL. See the [distribution inventory and checks](docs/distribution.md).
+Project code is MIT-licensed. Vendored PSReadLine stays under its original BSD-2-Clause license. See [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

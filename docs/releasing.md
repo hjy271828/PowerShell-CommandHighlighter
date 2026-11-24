@@ -12,7 +12,7 @@ version and release summary with the next reviewed release when preparing it.
 
 1. Keep `release.json`, the intended `v<version>` tag, the matching file under
    `docs/releases/`, and the changelog consistent.
-2. Build and run the checks documented in the README. Keep the changelog entry
+2. Build and run the checks documented in CONTRIBUTING.md. Keep the changelog entry
    marked unreleased until the actual release is published, then record its
    publication date without inventing an earlier release.
 3. Commit and push the reviewed source changes. Check the CI run for that exact

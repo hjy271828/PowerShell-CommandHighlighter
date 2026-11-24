@@ -5,7 +5,7 @@ This project maintains a small PSReadLine fork for Windows PowerShell 5.1. Keep 
 ## Development
 
 1. Build from the repository root with `.\tools\build.ps1` using .NET SDK 8.x.
-2. Run the semantic, installation, interactive, and source checks listed in the README in separate `powershell.exe -NoProfile -NonInteractive` processes.
+2. Run the checks listed under [Tests](#tests), each in a separate `powershell.exe -NoProfile -NonInteractive` process.
 3. Use `.\examples\demo.ps1` for manual testing; install only when validating the installed startup path.
 4. Run `python tools/check_public_source.py` before committing. The checker requires Git and Python 3 and scans tracked plus non-ignored untracked files.
 
@@ -21,6 +21,31 @@ For release changes, run `tools/package.ps1` after building, then run
 the extracted ZIP's checksum, licenses, installation, real editing, and removal.
 Keep `release.json` and the matching file in `docs/releases/` consistent. Do not
 attach binary output from an unreviewed commit to a release.
+
+## Tests
+
+Run each test in a clean process after building:
+
+```powershell
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Highlighter.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Installation.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Interactive.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Source.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Distribution.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-Patching.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-BuildSafety.ps1
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Test-DynamicEnvironment.ps1
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Integration tests need Windows with ConPTY support. To run a local benchmark:
+
+```powershell
+New-Item test-results -ItemType Directory -Force | Out-Null
+powershell.exe -NoLogo -NoProfile -NonInteractive -File .\tests\Measure-Highlighter.ps1 -OutputPath .\test-results\benchmark.json
+```
+
+See [validation notes](docs/validation.md) for optional profile checks and recorded results.
 
 ## Source and licensing
 
